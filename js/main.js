@@ -1,4 +1,6 @@
 const TILESIZE = 50;
+const canvasWidth = 1800;
+const canvasHeight = 800;
 
 let tiles = [];
 let menuButtonIsClicked = false;
@@ -11,8 +13,8 @@ function preload() {
 }
 
 function setup() {
-  const canvas = createCanvas(windowWidth, windowHeight);
-  player = new Player(windowWidth / 2, -TILESIZE - 150);
+  const canvas = createCanvas(canvasWidth, canvasHeight);
+  player = new Player(canvasWidth / 2, -TILESIZE - 150);
 
   const tileCols = maps[mapIndex][0].length;
   const tileRows = maps[mapIndex].length;
@@ -59,7 +61,7 @@ function draw() {
   clear();
   background("#2E4057");
 
-  translate(windowWidth / 2 - player.pos.x, windowHeight / 2 - player.pos.y);
+  translate(0, windowHeight / 2 - player.pos.y - 800);
 
   for (const row of tiles) {
     for (const tile of row) {
