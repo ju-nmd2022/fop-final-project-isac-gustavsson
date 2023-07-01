@@ -29,9 +29,3 @@ class Inventory {
     pop();
   }
 }
-
-function keyPressed() {
-  if (keyCode === 80) {
-    inventory.toggleShow();
-  }
-}
