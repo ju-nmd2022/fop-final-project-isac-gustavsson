@@ -173,11 +173,11 @@ class Player {
 
   move() {
     if (keyIsDown(65)) {
-      this.pos.x -= 4;
+      this.pos.x -= 10;
     }
 
     if (keyIsDown(68)) {
-      this.pos.x += 4;
+      this.pos.x += 10;
     }
 
     if (keyIsDown(32)) {

@@ -3,6 +3,7 @@ const canvasWidth = 1800;
 const canvasHeight = 800;
 
 let tiles = [];
+let inventory;
 let menuButtonIsClicked = false;
 let gravel;
 
@@ -15,6 +16,7 @@ function preload() {
 function setup() {
   const canvas = createCanvas(canvasWidth, canvasHeight);
   player = new Player(canvasWidth / 2, -TILESIZE - 150);
+  inventory = new Inventory();
 
   const tileCols = maps[mapIndex][0].length;
   const tileRows = maps[mapIndex].length;
@@ -61,7 +63,9 @@ function draw() {
   clear();
   background("#2E4057");
 
-  translate(0, windowHeight / 2 - player.pos.y - 800);
+  push();
+
+  translate(canvasWidth / 2 - player.pos.x, windowHeight / 2 - player.pos.y);
 
   for (const row of tiles) {
     for (const tile of row) {
@@ -77,6 +81,16 @@ function draw() {
   player.animate();
   player.move();
   player.update();
+
+  pop();
+
+  if (inventory.isOpen === false) {
+    inventory.Closed();
+  }
+
+  if (inventory.isOpen === true) {
+    inventory.Open();
+  }
 }
 
 function assetsAreLoaded() {
