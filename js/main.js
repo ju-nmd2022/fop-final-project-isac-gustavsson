@@ -2,12 +2,14 @@ const TILESIZE = 50;
 const canvasWidth = 1800;
 const canvasHeight = 800;
 
-let tiles = [];
-let inventory;
 let menuButtonIsClicked = false;
-let gravel;
 
 let mapIndex = 0; // Player starts on map 0
+
+let tiles = [];
+let gravel;
+let player;
+let inventory;
 
 function preload() {
   gravel = loadImage("img/gravel.png");
@@ -70,7 +72,7 @@ function draw() {
   for (const row of tiles) {
     for (const tile of row) {
       if (tile) {
-        tile.animate();
+        tile.animate(inventory);
         if (player.hits(tile)) {
           // Handle tile collision
         }
@@ -127,6 +129,16 @@ function keyPressed() {
         if (currentTile && currentTile.hits === currentTile.maxHits) {
           player.destroyTile(tiles);
           currentTile.hits = 0;
+
+          if (currentTile instanceof gt0) {
+            inventory.addResources(new Grass());
+          } else if (currentTile instanceof ct) {
+            inventory.addResources(new Clay());
+          } else if (currentTile instanceof st) {
+            inventory.addResources(new Stone());
+          } else if (currentTile instanceof gt1) {
+            inventory.addResources(new Gold());
+          }
         }
 
         /*  i have experienced a bug where the tiles' hitcount may continue to increment beyond a tiles' max hitcount despite being destroyed. This is 
@@ -146,6 +158,8 @@ function keyPressed() {
   if (keyCode === 80) {
     inventory.toggleShow();
   }
+
+  // SECTION 3 - RESOURCES //
 
   return false;
 }
