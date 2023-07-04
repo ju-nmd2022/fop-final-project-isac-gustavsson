@@ -17,11 +17,12 @@ function preload() {
 
 function setup() {
   const canvas = createCanvas(canvasWidth, canvasHeight);
+
   player = new Player(canvasWidth / 2, -TILESIZE - 150);
   inventory = new Inventory();
 
-  const tileCols = maps[mapIndex][0].length;
-  const tileRows = maps[mapIndex].length;
+  const tileCols = 50; // Number of columns per row
+  const tileRows = 50; // Number of rows
 
   tiles = Array.from({ length: tileRows }, () =>
     Array.from({ length: tileCols })
@@ -29,11 +30,27 @@ function setup() {
 
   for (let i = 0; i < tileRows; i++) {
     for (let j = 0; j < tileCols; j++) {
-      const tileType = maps[mapIndex][i][j];
-      if (tileType && tileType !== " ") {
-        // check if tileType is not null or undefined
-        const x = j * TILESIZE;
-        const y = i * TILESIZE;
+      const x = j * TILESIZE;
+      const y = i * TILESIZE;
+      const noiseValue = noise(x / 100, y / 100);
+
+      let tileType;
+
+      if (i === 0) {
+        tileType = gt0;
+      } else if ((noiseValue < 0.35) & (noiseValue > 0.3)) {
+        tileType = ""; // Empty space
+      } else if (noiseValue < 0.6 && noiseValue > 0.2) {
+        tileType = ct; // Cave tile type
+      } else if (noiseValue < 0.6) {
+        tileType = st; // Stone tile type
+      } else if (noiseValue < 0.95 && noiseValue > 0.75) {
+        tileType = gt1; // Gold tile type
+      } else {
+        tileType = ""; // Empty space
+      }
+
+      if (tileType !== "") {
         tiles[i][j] = new tileType(x, y, TILESIZE);
       }
     }
@@ -99,7 +116,7 @@ function keyPressed() {
   // SECTION 1 - PLAYER HIT DETECTION AND DESTRUCTION //
 
   // Check if the "E" key is pressed
-  if (keyCode === 69) {
+  if (keyIsDown(69)) {
     // Loop through all available tiles
     for (let y = 0; y < tiles.length; y++) {
       if (!tiles[y]) continue;
@@ -118,9 +135,11 @@ function keyPressed() {
               player.pos.x > currentTile.pos.x &&
               player.pos.y > currentTile.pos.y) ||
             (keyIsDown(39) && player.pos.x < currentTile.pos.x) ||
-            (keyIsDown(38) && player.pos.y > currentTile.pos.y) ||
+            (keyIsDown(38) &&
+              player.pos.y + currentTile.s > currentTile.pos.y) ||
             (keyIsDown(40) && player.pos.y < currentTile.pos.y)
           ) {
+            console.log("hit");
             currentTile.hits += 1;
           }
         }

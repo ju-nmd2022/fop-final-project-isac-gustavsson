@@ -11,12 +11,14 @@ class Player {
 
   destroyTile(tiles) {
     // Calculate the x-coordinate and y-coordinate of the player's center
+
     const playerCenterX = this.pos.x + this.s / 2;
     const playerCenterY = this.pos.y + this.s / 2;
 
     let tileToDestroy = null; // Initialize variable to store the tile to be destroyed
 
     // Loop through all available tiles
+
     for (let y = 0; y < tiles.length; y++) {
       if (!tiles[y]) continue;
       for (let x = 0; x < tiles[y].length; x++) {
@@ -25,17 +27,21 @@ class Player {
         if (!tile) continue;
 
         // Calculate the x-coordinate and y-coordinate of the tile's center
+
         const tileCenterX = tile.pos.x + tile.s / 2;
         const tileCenterY = tile.pos.y + tile.s / 2;
 
         // Calculate the absolute distance in the x-axis and y-axis
+
         const distanceX = Math.abs(playerCenterX - tileCenterX);
         const distanceY = Math.abs(playerCenterY - tileCenterY);
 
         // Calculate the maximum allowed distance to destroy the tile
+
         const maxDistance = this.s / 2 + tile.s / 2;
 
-        // Check if the arrow key being held and match the direction with the tile's position
+        // Below is the logic to check if the player is holding the correct keys in relation to the distance between the player and the tile (in order to destroy the tile).
+
         if (
           keyIsDown(37) &&
           distanceX <= maxDistance &&
@@ -43,38 +49,43 @@ class Player {
           playerCenterX > tileCenterX &&
           (tileToDestroy === null || tileCenterX > tileToDestroy.pos.x)
         ) {
-          // Set the tile to the left as the tile to be destroyed if it's the closest one in that direction
           tileToDestroy = tile;
-        } else if (
+        }
+        //  set the tile to the left as the tile to be destroyed if the Left Arrow Key is held and the tile is within the maximum allowed distance.
+        else if (
           keyIsDown(39) &&
           distanceX <= maxDistance &&
           distanceY <= maxDistance * 0.5 &&
           playerCenterX < tileCenterX &&
           (tileToDestroy === null || tileCenterX < tileToDestroy.pos.x)
         ) {
-          // Set the tile to the right as the tile to be destroyed if it's the closest one in that direction
           tileToDestroy = tile;
-        } else if (
+        }
+        // set the tile to the right as the tile to be destroyed if the Right Arrow Key is held and the tile is within the maximum allowed distance.
+        else if (
           keyIsDown(38) &&
-          distanceX <= maxDistance * 0.5 &&
-          distanceY <= maxDistance * 1.5 &&
-          playerCenterY > tileCenterY &&
+          distanceX <= maxDistance / 2 &&
+          distanceY <= maxDistance * 2 &&
+          playerCenterY >= tileCenterY &&
           (tileToDestroy === null || tileCenterY > tileToDestroy.pos.y)
         ) {
-          // Set the tile above as the tile to be destroyed if it's the closest one in that direction
           tileToDestroy = tile;
-        } else if (
+        }
+        // Set the tile above as the tile to be destroyed if the Up Arrow Key is held and the tile is within the maximum allowed distance.
+        else if (
           keyIsDown(40) &&
           distanceX <= maxDistance - 10 &&
           distanceY <= maxDistance &&
           playerCenterY < tileCenterY &&
           (tileToDestroy === null || tileCenterY < tileToDestroy.pos.y)
         ) {
-          // Set the tile below as the tile to be destroyed if it's the closest one in that direction
           tileToDestroy = tile;
         }
+        // Set the tile below as the tile to be destroyed if the Down Arrow Key is held and the tile is within the maximum allowed distance.
       }
     }
+
+    // Find the tile to be destroyed in the array and remove it from the array.
 
     if (tileToDestroy) {
       const y = tiles.findIndex((row) => row.includes(tileToDestroy));
@@ -173,11 +184,11 @@ class Player {
 
   move() {
     if (keyIsDown(65)) {
-      this.pos.x -= 10;
+      this.pos.x -= 5;
     }
 
     if (keyIsDown(68)) {
-      this.pos.x += 10;
+      this.pos.x += 5;
     }
 
     if (keyIsDown(32)) {
