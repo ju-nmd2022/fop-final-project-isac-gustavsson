@@ -1,6 +1,6 @@
 class Inventory {
   constructor() {
-    this.capacity = 5;
+    this.capacity = 72;
     this.isOpen = false;
     this.resources = [];
   }
@@ -36,7 +36,7 @@ class Inventory {
       const xPos = startX + col * gridSize;
       const yPos = startY + row * gridSize;
 
-      if (row < 3 && col < 8) {
+      if (row < 8 && col < 8) {
         push();
         translate(xPos, yPos);
         resource.animate();

@@ -1,12 +1,24 @@
 // /**********  Class Object For Player **********/
 
 class Player {
-  constructor(x, y) {
+  constructor(x, y, s) {
     this.pos = createVector(x, y);
     this.vel = createVector(0, 0);
     this.gravity = 0.5;
     this.s = 25;
     this.isGrounded = false;
+  }
+
+  alerted(enemy) {
+    let distance = dist(this.pos.x, this.pos.y, enemy.pos.x, enemy.pos.y);
+    let threshold = 150;
+
+    if (distance < threshold) {
+      // Player is within the proximity threshold, perform actions here
+      // For example, you can change the enemy's behavior or trigger an event
+      // when the player is close to the enemy
+      // console.log("Player is within proximity of enemy!");
+    }
   }
 
   destroyTile(tiles) {
@@ -64,9 +76,9 @@ class Player {
         // set the tile to the right as the tile to be destroyed if the Right Arrow Key is held and the tile is within the maximum allowed distance.
         else if (
           keyIsDown(38) &&
-          distanceX <= maxDistance / 2 &&
+          distanceX <= maxDistance * 0.8 &&
           distanceY <= maxDistance * 2 &&
-          playerCenterY >= tileCenterY &&
+          playerCenterY > tileCenterY &&
           (tileToDestroy === null || tileCenterY > tileToDestroy.pos.y)
         ) {
           tileToDestroy = tile;
@@ -207,11 +219,11 @@ class Player {
 
   animate() {
     push();
-    translate(this.pos.x - 25, this.pos.y - 25);
+    translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2);
     noStroke();
     fill("yellow");
     /****** HitBox ************/
-    rect(this.s, this.s, this.s, this.s);
+    rect(0, 0, this.s, this.s);
     pop();
   }
 }

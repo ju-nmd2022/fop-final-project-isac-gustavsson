@@ -1,4 +1,3 @@
-const TILESIZE = 50;
 const canvasWidth = 1800;
 const canvasHeight = 800;
 
@@ -7,6 +6,7 @@ let menuButtonIsClicked = false;
 let mapIndex = 0; // Player starts on map 0
 
 let tiles = [];
+let enemies = [];
 let gravel;
 let player;
 let inventory;
@@ -18,7 +18,7 @@ function preload() {
 function setup() {
   const canvas = createCanvas(canvasWidth, canvasHeight);
 
-  player = new Player(canvasWidth / 2, -TILESIZE - 150);
+  player = new Player(canvasWidth / 2, -50);
   inventory = new Inventory();
 
   const tileCols = 50; // Number of columns per row
@@ -30,30 +30,57 @@ function setup() {
 
   for (let i = 0; i < tileRows; i++) {
     for (let j = 0; j < tileCols; j++) {
-      const x = j * TILESIZE;
-      const y = i * TILESIZE;
+      const x = j * 50;
+      const y = i * 50;
       const noiseValue = noise(x / 100, y / 100);
+      const enemy = new Enemy();
 
       let tileType;
-
       if (i === 0) {
-        tileType = gt0;
-      } else if ((noiseValue < 0.35) & (noiseValue > 0.3)) {
+        tileType = gt0; // Always grass tile for the first row
+      } else if (noiseValue < 0.8 && noiseValue > 0.6) {
         tileType = ""; // Empty space
-      } else if (noiseValue < 0.6 && noiseValue > 0.2) {
+      } else if (noiseValue < 0.5 && isNearEmptySpace(i, j)) {
+        tileType = ""; // Empty space, check for proximity to existing empty spaces
+      } else if (noiseValue < 0.65 && noiseValue > 0.4) {
         tileType = ct; // Cave tile type
-      } else if (noiseValue < 0.6) {
+      } else if (noiseValue < 0.45 && noiseValue > 0.3) {
         tileType = st; // Stone tile type
-      } else if (noiseValue < 0.95 && noiseValue > 0.75) {
-        tileType = gt1; // Gold tile type
+      } else if (noiseValue > 0.1 && noiseValue < 0.15) {
+        tileType = gt1; // EmptySpace
       } else {
-        tileType = ""; // Empty space
+        tileType = "";
       }
 
       if (tileType !== "") {
-        tiles[i][j] = new tileType(x, y, TILESIZE);
+        tiles[i][j] = new tileType(x, y);
+      } else if (tileType === "" && noiseValue > 0 && noiseValue < 0.2) {
+        enemies.push(new Enemy(x, y));
       }
     }
+  }
+
+  // Function to check proximity to existing empty spaces
+  function isNearEmptySpace(row, col) {
+    const proximityThreshold = null; // Adjust this value to control proximity to existing empty spaces
+
+    for (
+      let i = Math.max(0, row - proximityThreshold);
+      i <= Math.min(row + proximityThreshold, tileRows - 1);
+      i++
+    ) {
+      for (
+        let j = Math.max(0, col - proximityThreshold);
+        j <= Math.min(col + proximityThreshold, tileCols - 1);
+        j++
+      ) {
+        if (tiles[i][j] === "") {
+          return true; // Proximity to existing empty space
+        }
+      }
+    }
+
+    return false; // No proximity to existing empty space
   }
 }
 
@@ -90,8 +117,11 @@ function draw() {
     for (const tile of row) {
       if (tile) {
         tile.animate(inventory);
-        if (player.hits(tile)) {
-          // Handle tile collision
+        player.hits(tile);
+
+        for (const enemy of enemies) {
+          enemy.hits(tile);
+          // ... additional enemy logic ...
         }
       }
     }
@@ -100,6 +130,13 @@ function draw() {
   player.animate();
   player.move();
   player.update();
+
+  for (const enemy of enemies) {
+    enemy.animate();
+    enemy.update();
+    player.alerted(enemy);
+    enemy.collidesWith(player);
+  }
 
   pop();
 
@@ -139,7 +176,6 @@ function keyPressed() {
               player.pos.y + currentTile.s > currentTile.pos.y) ||
             (keyIsDown(40) && player.pos.y < currentTile.pos.y)
           ) {
-            console.log("hit");
             currentTile.hits += 1;
           }
         }
@@ -149,14 +185,16 @@ function keyPressed() {
           player.destroyTile(tiles);
           currentTile.hits = 0;
 
-          if (currentTile instanceof gt0) {
-            inventory.addResources(new Grass());
-          } else if (currentTile instanceof ct) {
-            inventory.addResources(new Clay());
-          } else if (currentTile instanceof st) {
-            inventory.addResources(new Stone());
-          } else if (currentTile instanceof gt1) {
-            inventory.addResources(new Gold());
+          if (inventory.resources.length < inventory.capacity) {
+            if (currentTile instanceof gt0) {
+              inventory.addResources(new Grass());
+            } else if (currentTile instanceof ct) {
+              inventory.addResources(new Clay());
+            } else if (currentTile instanceof st) {
+              inventory.addResources(new Stone());
+            } else if (currentTile instanceof gt1) {
+              inventory.addResources(new Gold());
+            }
           }
         }
 

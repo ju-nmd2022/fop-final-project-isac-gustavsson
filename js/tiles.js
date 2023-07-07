@@ -1,7 +1,7 @@
 class Tile {
-  constructor(x, y, s, maxHits, resources) {
+  constructor(x, y, maxHits, resources) {
     this.pos = createVector(x, y);
-    this.s = s;
+    this.s = 50;
     this.hits = 0;
     this.maxHits = maxHits;
     this.resources = resources;
@@ -18,10 +18,10 @@ class gt0 extends Tile {
 
   animate(inventory) {
     push();
-    translate(this.pos.x, this.pos.y);
+    translate(this.pos.x - 12.5, this.pos.y - 12.5);
     stroke("#2E4057");
     fill("#4A824A");
-    rect(this.s - 50, this.s - 50, this.s, this.s);
+    rect(0, 0, this.s, this.s);
     pop();
   }
 }
@@ -36,10 +36,10 @@ class ct extends Tile {
 
   animate(inventory) {
     push();
-    translate(this.pos.x, this.pos.y);
+    translate(this.pos.x - 12.5, this.pos.y - 12.5);
     stroke("#2E4057");
     fill("#977B5E");
-    rect(this.s - 50, this.s - 50, this.s, this.s);
+    rect(0, 0, this.s, this.s);
     pop();
   }
 }
@@ -54,10 +54,10 @@ class st extends Tile {
 
   animate(inventory) {
     push();
-    translate(this.pos.x, this.pos.y);
+    translate(this.pos.x - 12.5, this.pos.y - 12.5);
     stroke("#2E4057");
     fill("#B3B9BD");
-    rect(this.s - 50, this.s - 50, this.s, this.s);
+    rect(0, 0, this.s, this.s);
     pop();
   }
 }
@@ -72,10 +72,10 @@ class gt1 extends Tile {
 
   animate(inventory) {
     push();
-    translate(this.pos.x, this.pos.y);
+    translate(this.pos.x - 12.5, this.pos.y - 12.5);
     stroke("#2E4057");
     fill("#FAC05E");
-    rect(this.s - 50, this.s - 50, this.s, this.s);
+    rect(0, 0, this.s, this.s);
     pop();
   }
 }
