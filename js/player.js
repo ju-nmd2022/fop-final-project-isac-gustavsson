@@ -7,18 +7,8 @@ class Player {
     this.gravity = 0.5;
     this.s = 25;
     this.isGrounded = false;
-  }
 
-  alerted(enemy) {
-    let distance = dist(this.pos.x, this.pos.y, enemy.pos.x, enemy.pos.y);
-    let threshold = 150;
-
-    if (distance < threshold) {
-      // Player is within the proximity threshold, perform actions here
-      // For example, you can change the enemy's behavior or trigger an event
-      // when the player is close to the enemy
-      // console.log("Player is within proximity of enemy!");
-    }
+    this.color = "#C933FF";
   }
 
   destroyTile(tiles) {
@@ -110,48 +100,50 @@ class Player {
     if (!tile) {
       return false;
     }
+
     // Calculate player and tile boundaries
-    const playerBottom = this.pos.y + this.s;
-    const tileTop = tile.pos.y,
-      tileBottom = tileTop + tile.s,
-      playerRight = this.pos.x + this.s,
-      tileLeft = tile.pos.x,
-      tileRight = tileLeft + tile.s;
+
+    const playerRight = this.pos.x + this.s;
+    const playerBot = this.pos.y + this.s;
+
+    const tileTop = tile.pos.y;
+    const tileBot = tile.pos.y + tile.s;
+    const tileLeft = tile.pos.x;
+    const tileRight = tile.pos.x + tile.s;
 
     // Check for collisions from different directions
-    const collidedFromBottom =
+
+    const hitFromBot =
       this.vel.y >= 0 &&
-      playerBottom >= tileTop &&
+      playerBot >= tileTop &&
       this.pos.y < tileTop &&
       playerRight > tileLeft &&
       this.pos.x < tileRight;
-    const collidedFromTop =
+
+    const hitFromTop =
       this.vel.y <= 0 &&
-      this.pos.y <= tileBottom &&
-      playerBottom > tileBottom &&
+      this.pos.y <= tileBot &&
+      playerBot > tileBot &&
       playerRight > tileLeft &&
       this.pos.x < tileRight;
-    const collidedFromRight =
+
+    const hitFromRight =
       this.vel.x >= 0 &&
       this.pos.x <= tileRight &&
       playerRight > tileRight &&
-      playerBottom > tileTop &&
-      this.pos.y < tileBottom;
-    const collidedFromLeft =
+      playerBot > tileTop &&
+      this.pos.y < tileBot;
+
+    const hitFromLeft =
       this.vel.x <= 0 &&
       playerRight >= tileLeft &&
       this.pos.x < tileLeft &&
-      playerBottom > tileTop &&
-      this.pos.y < tileBottom;
-    const collidedFromRightTop =
-      this.vel.x <= 0 &&
-      playerBottom >= tileTop &&
-      this.pos.y < tileTop &&
-      this.pos.x > tileRight &&
-      playerRight <= tileRight;
+      playerBot > tileTop &&
+      this.pos.y < tileBot;
 
-    // Resolve collisions based on direction
-    if (collidedFromBottom) {
+    // Determine collisions based on direction
+
+    if (hitFromBot) {
       this.pos.y = tileTop - this.s;
       this.vel.y = 0;
       this.isGrounded = true;
@@ -159,27 +151,24 @@ class Player {
       return true;
     }
 
-    if (collidedFromTop) {
-      this.pos.y = tileBottom;
+    if (hitFromTop) {
+      this.pos.y = tileBot;
       this.vel.y = 0;
+
       return true;
     }
 
-    if (collidedFromRight) {
+    if (hitFromRight) {
       this.pos.x = tileRight;
       this.vel.x = 0;
+
       return true;
     }
 
-    if (collidedFromLeft) {
+    if (hitFromLeft) {
       this.pos.x = tileLeft - this.s;
       this.vel.x = 0;
-      return true;
-    }
 
-    if (collidedFromRightTop) {
-      this.pos.x = tileRight;
-      this.vel.x = 0;
       return true;
     }
 
@@ -187,14 +176,18 @@ class Player {
   }
 
   jump() {
-    // Only allow the player to jump if they are on the ground
+    // Checks if player object is grounded. If true it sets isGrounded to true and allows the player to jump.
+
     if (this.isGrounded) {
-      this.vel.y = -8; // Adjust the jump velocity to control jump height
-      this.isGrounded = false; // Set isGrounded to false after jumping
+      // Adjust the jump velocity to control jump height
+      this.vel.y = -8;
+
+      // Set isGrounded to false after jumping.
+      this.isGrounded = false;
     }
   }
 
-  move() {
+  move(tile) {
     if (keyIsDown(65)) {
       this.pos.x -= 5;
     }
@@ -209,20 +202,17 @@ class Player {
   }
 
   update() {
+    // applies gravity to player object
+
     this.vel.y += this.gravity;
     this.pos.add(this.vel);
-
-    if (this.pos.y === height - this.s) {
-      this.isGrounded = true; // Check if the player is on the ground
-    }
   }
 
   animate() {
     push();
     translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2);
     noStroke();
-    fill("yellow");
-    /****** HitBox ************/
+    fill(this.color);
     rect(0, 0, this.s, this.s);
     pop();
   }

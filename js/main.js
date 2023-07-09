@@ -22,7 +22,7 @@ function setup() {
   inventory = new Inventory();
 
   const tileCols = 50; // Number of columns per row
-  const tileRows = 50; // Number of rows
+  const tileRows = 10; // Number of rows
 
   tiles = Array.from({ length: tileRows }, () =>
     Array.from({ length: tileCols })
@@ -54,7 +54,7 @@ function setup() {
 
       if (tileType !== "") {
         tiles[i][j] = new tileType(x, y);
-      } else if (tileType === "" && noiseValue > 0 && noiseValue < 0.2) {
+      } else if (tileType === "" && noiseValue > 0.1 && noiseValue < 0.25) {
         enemies.push(new Enemy(x, y));
       }
     }
@@ -97,15 +97,6 @@ menuButton.addEventListener("click", () => {
 });
 
 function draw() {
-  // Hide the loading screen //
-
-  // if (assetsAreLoaded() && menuButtonIsClicked) {
-  //   document.getElementById("main-menu").style.display = "none";
-  //   document.getElementById("loading-screen").style.display = "none";
-  // }
-
-  // Call switchToNextMap when player finishes current map
-
   clear();
   background("#2E4057");
 
@@ -120,22 +111,25 @@ function draw() {
         player.hits(tile);
 
         for (const enemy of enemies) {
+          //  Update enemy / tile object relations.
           enemy.hits(tile);
-          // ... additional enemy logic ...
         }
       }
     }
   }
 
+  // Update the player functions
   player.animate();
   player.move();
   player.update();
 
+  // Update the enemy functions
+
   for (const enemy of enemies) {
     enemy.animate();
     enemy.update();
-    player.alerted(enemy);
-    enemy.collidesWith(player);
+    enemy.alertedByPlayer(player);
+    player.hits(enemy);
   }
 
   pop();
