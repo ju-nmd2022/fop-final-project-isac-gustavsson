@@ -1,5 +1,5 @@
 const canvasWidth = 1800;
-const canvasHeight = 800;
+const canvasHeight = 950;
 
 let menuButtonIsClicked = false;
 
@@ -22,7 +22,7 @@ function setup() {
   inventory = new Inventory();
 
   const tileCols = 50; // Number of columns per row
-  const tileRows = 10; // Number of rows
+  const tileRows = 50; // Number of rows
 
   tiles = Array.from({ length: tileRows }, () =>
     Array.from({ length: tileCols })
@@ -36,51 +36,27 @@ function setup() {
       const enemy = new Enemy();
 
       let tileType;
+
       if (i === 0) {
-        tileType = gt0; // Always grass tile for the first row
-      } else if (noiseValue < 0.8 && noiseValue > 0.6) {
-        tileType = ""; // Empty space
-      } else if (noiseValue < 0.5 && isNearEmptySpace(i, j)) {
-        tileType = ""; // Empty space, check for proximity to existing empty spaces
-      } else if (noiseValue < 0.65 && noiseValue > 0.4) {
-        tileType = ct; // Cave tile type
-      } else if (noiseValue < 0.45 && noiseValue > 0.3) {
-        tileType = st; // Stone tile type
-      } else if (noiseValue > 0.1 && noiseValue < 0.15) {
-        tileType = gt1; // EmptySpace
+        tileType = gt0;
+      } else if (noiseValue < 0.9 && noiseValue > 0.7) {
+        tileType = gt0;
+      } else if (noiseValue < 0.7 && noiseValue > 0.5) {
+        tileType = ct;
+      } else if (noiseValue < 0.5 && noiseValue > 0.4) {
+        tileType = st;
+      } else if (noiseValue < 0.4 && noiseValue > 0.39) {
+        tileType = gt1;
       } else {
         tileType = "";
       }
 
       if (tileType !== "") {
         tiles[i][j] = new tileType(x, y);
-      } else if (tileType === "" && noiseValue > 0.1 && noiseValue < 0.25) {
+      } else if (tileType === "" && noiseValue > 0.1 && noiseValue < 0.2) {
         enemies.push(new Enemy(x, y));
       }
     }
-  }
-
-  // Function to check proximity to existing empty spaces
-  function isNearEmptySpace(row, col) {
-    const proximityThreshold = null; // Adjust this value to control proximity to existing empty spaces
-
-    for (
-      let i = Math.max(0, row - proximityThreshold);
-      i <= Math.min(row + proximityThreshold, tileRows - 1);
-      i++
-    ) {
-      for (
-        let j = Math.max(0, col - proximityThreshold);
-        j <= Math.min(col + proximityThreshold, tileCols - 1);
-        j++
-      ) {
-        if (tiles[i][j] === "") {
-          return true; // Proximity to existing empty space
-        }
-      }
-    }
-
-    return false; // No proximity to existing empty space
   }
 }
 

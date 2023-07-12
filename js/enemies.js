@@ -19,7 +19,7 @@ class Enemy extends Player {
     noStroke();
     fill(this.color);
     /****** HitBox ************/
-    rect(0, 0, this.s, this.s);
+    rect(this.s / 2, 0, this.s, this.s);
     pop();
   }
 
@@ -88,7 +88,7 @@ class Enemy extends Player {
 
     const tileTop = tile.pos.y;
     const tileBot = tile.pos.y + tile.s;
-    const tileLeft = tile.pos.x;
+    const tileLeft = tile.pos.x - this.s / 2;
     const tileRight = tile.pos.x + tile.s;
 
     const tileCenterX = tile.pos.x + tile.s / 2;
@@ -112,7 +112,7 @@ class Enemy extends Player {
 
     const hitFromRight =
       this.vel.x >= 0 &&
-      this.pos.x <= tileRight &&
+      this.pos.x + this.s / 2 <= tileRight &&
       enemyRight > tileRight &&
       enemyBot > tileTop &&
       this.pos.y < tileBot;
@@ -149,7 +149,7 @@ class Enemy extends Player {
       enemyBot > tileCenterY &&
       this.pos.x + this.s > player.pos.x + player.s
     ) {
-      this.pos.x = tileRight;
+      this.pos.x = tileRight - this.s / 2;
       this.vel.x = 0;
       this.jump();
       return true;
@@ -173,7 +173,6 @@ class Enemy extends Player {
       this.pos.x = tileLeft - this.s;
       this.vel.x = 0;
       this.jump();
-      console.log("hit");
       return true;
     }
 
