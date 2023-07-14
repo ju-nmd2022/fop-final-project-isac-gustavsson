@@ -6,9 +6,13 @@ let menuButtonIsClicked = false;
 let mapIndex = 0; // Player starts on map 0
 
 let tiles = [];
+let tileCols = 0;
+let tileRows = 0;
+
 let enemies = [];
 let gravel;
 let player;
+
 let inventory;
 
 function preload() {
@@ -21,40 +25,77 @@ function setup() {
   player = new Player(canvasWidth / 2, -50);
   inventory = new Inventory();
 
-  const tileCols = 50; // Number of columns per row
-  const tileRows = 50; // Number of rows
+  const centerX = canvasWidth / 2;
+  const centerY = -50;
+
+  tileCols = Math.ceil((canvasWidth / 2) * 50);
+  tileRows = Math.ceil(canvasHeight / 150);
 
   tiles = Array.from({ length: tileRows }, () =>
     Array.from({ length: tileCols })
   );
+}
 
-  for (let i = 0; i < tileRows; i++) {
-    for (let j = 0; j < tileCols; j++) {
-      const x = j * 50;
-      const y = i * 50;
-      const noiseValue = noise(x / 100, y / 100);
-      const enemy = new Enemy();
+function loadRadius(centerX, centerY, radius) {
+  const startRow = Math.ceil(0, Math.floor(centerY - radius) / 50);
+  const endRow = Math.max(tiles.length - 1, Math.ceil((centerY + radius) / 50));
 
-      let tileType;
+  let startCol, endCol;
 
-      if (i === 0) {
-        tileType = gt0;
-      } else if (noiseValue < 0.9 && noiseValue > 0.7) {
-        tileType = gt0;
-      } else if (noiseValue < 0.7 && noiseValue > 0.5) {
-        tileType = ct;
-      } else if (noiseValue < 0.5 && noiseValue > 0.4) {
-        tileType = st;
-      } else if (noiseValue < 0.4 && noiseValue > 0.39) {
-        tileType = gt1;
+  for (let i = startRow; i <= endRow; i++) {
+    // Check if the row exists, otherwise create a new row
+    if (!tiles[i]) {
+      tiles[i] = Array.from({ length: tileCols });
+    }
+  }
+
+  if (player.vel.x > 0) {
+    // Moving to the right (x++)
+    startCol = Math.max(0, Math.floor((centerX - radius) / 50));
+    endCol = Math.min(
+      tiles[0].length - 1,
+      Math.ceil((centerX + radius - player.vel.x) / 50)
+    );
+  } else if (player.vel.x < 0) {
+    // Moving to the left (x--)
+    startCol = Math.max(0, Math.floor((centerX - radius - player.vel.x) / 50));
+    endCol = Math.min(tiles[0].length - 1, Math.ceil((centerX + radius) / 50));
+  } else {
+    // Not moving horizontally
+    startCol = Math.max(0, Math.floor((centerX - radius) / 50));
+    endCol = Math.min(tiles[0].length - 1, Math.ceil((centerX + radius) / 50));
+  }
+  for (let i = startRow; i <= endRow; i++) {
+    for (let j = startCol; j <= endCol; j++) {
+      const tile = tiles[i][j];
+      if (tile) {
+        tile.animate(inventory);
+        player.hits(tile);
       } else {
-        tileType = "";
-      }
+        const x = j * 50;
+        const y = i * 50;
+        const noiseValue = noise(x / 100, y / 100);
 
-      if (tileType !== "") {
-        tiles[i][j] = new tileType(x, y);
-      } else if (tileType === "" && noiseValue > 0.1 && noiseValue < 0.2) {
-        enemies.push(new Enemy(x, y));
+        let tileType = "";
+
+        if (i === 0) {
+          tileType = gt0;
+        } else if (noiseValue < 0.9 && noiseValue > 0.7) {
+          tileType = gt0;
+        } else if (noiseValue < 0.7 && noiseValue > 0.5) {
+          tileType = ct;
+        } else if (noiseValue < 0.5 && noiseValue > 0.4) {
+          tileType = st;
+        } else if (noiseValue < 0.4 && noiseValue > 0.39) {
+          tileType = gt1;
+        }
+        if (tileType !== "") {
+          tiles[i][j] = new tileType(x, y);
+        }
+
+        if (enemies.length < 1 && tileType === "") {
+          enemies.push(new Enemy(x, y));
+        }
       }
     }
   }
@@ -78,14 +119,11 @@ function draw() {
 
   push();
 
-  translate(canvasWidth / 2 - player.pos.x, windowHeight / 2 - player.pos.y);
+  translate(canvasWidth / 2 - player.pos.x, canvasHeight / 4 - player.pos.y);
 
   for (const row of tiles) {
     for (const tile of row) {
       if (tile) {
-        tile.animate(inventory);
-        player.hits(tile);
-
         for (const enemy of enemies) {
           //  Update enemy / tile object relations.
           enemy.hits(tile);
@@ -105,8 +143,11 @@ function draw() {
     enemy.animate();
     enemy.update();
     enemy.alertedByPlayer(player);
-    player.hits(enemy);
+    // player.hits(enemy);
+    // enemy.hits(player);
   }
+
+  loadRadius(player.pos.x, player.pos.y, 300);
 
   pop();
 
@@ -142,8 +183,7 @@ function keyPressed() {
               player.pos.x > currentTile.pos.x &&
               player.pos.y > currentTile.pos.y) ||
             (keyIsDown(39) && player.pos.x < currentTile.pos.x) ||
-            (keyIsDown(38) &&
-              player.pos.y + currentTile.s > currentTile.pos.y) ||
+            (keyIsDown(38) && player.pos.y - player.s > currentTile.pos.y) ||
             (keyIsDown(40) && player.pos.y < currentTile.pos.y)
           ) {
             currentTile.hits += 1;
@@ -167,7 +207,6 @@ function keyPressed() {
             }
           }
         }
-
         /*  i have experienced a bug where the tiles' hitcount may continue to increment beyond a tiles' max hitcount despite being destroyed. This is 
         likely because the player is colliding with several hitboxes at once, for instance from both the bottom of the player and the right or left. 
         The line of code below checks if the the currentTiles hitcount is equal to or greater than its' maxcount and if it returns true it sets the hitcount 
