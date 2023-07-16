@@ -21,12 +21,12 @@ class Inventory {
     push();
     noStroke();
     fill("#4B3B40");
-    rect(canvasWidth / 2 - 300, canvasHeight / 2 - 300, 600);
+    rect(canvasWidth / 2 - 300, canvasHeight / 2 - 350, 600);
     pop();
 
     const gridSize = 70;
     const startX = canvasWidth / 2 - 875;
-    const startY = canvasHeight / 2 - 375;
+    const startY = canvasHeight / 2 - 500;
 
     for (let i = 0; i < this.resources.length; i++) {
       const resource = this.resources[i];

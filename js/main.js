@@ -1,13 +1,12 @@
 const canvasWidth = 1800;
 const canvasHeight = 950;
 
+const centerX = canvasWidth / 2;
+const centerY = -50;
+
 let menuButtonIsClicked = false;
 
-let mapIndex = 0; // Player starts on map 0
-
 let tiles = [];
-let tileCols = 0;
-let tileRows = 0;
 
 let enemies = [];
 let gravel;
@@ -15,21 +14,26 @@ let player;
 
 let inventory;
 
-function preload() {
-  gravel = loadImage("img/gravel.png");
-}
+// main menu and loading screen //
+
+let menuButton = document.getElementById("start-button");
+document.getElementById("main-menu").style.display = "none";
+document.getElementById("loading-screen").style.display = "none";
+
+menuButton.addEventListener("click", () => {
+  menuButtonIsClicked = true;
+  document.getElementById("main-menu").style.display = "none";
+  document.getElementById("loading-screen").style.display = "block";
+});
 
 function setup() {
   const canvas = createCanvas(canvasWidth, canvasHeight);
 
-  player = new Player(canvasWidth / 2, -50);
+  player = new Player(centerX, centerY);
   inventory = new Inventory();
 
-  const centerX = canvasWidth / 2;
-  const centerY = -50;
-
-  tileCols = Math.ceil((canvasWidth / 2) * 50);
-  tileRows = Math.ceil(canvasHeight / 150);
+  tileCols = Math.ceil(centerX * 50);
+  tileRows = Math.ceil(centerY * 50);
 
   tiles = Array.from({ length: tileRows }, () =>
     Array.from({ length: tileCols })
@@ -37,10 +41,12 @@ function setup() {
 }
 
 function loadRadius(centerX, centerY, radius) {
-  const startRow = Math.ceil(0, Math.floor(centerY - radius) / 50);
-  const endRow = Math.max(tiles.length - 1, Math.ceil((centerY + radius) / 50));
+  const startRow = Math.ceil((centerY - radius / 2) / 50) + 1;
+  const endRow = Math.ceil((centerY + radius) / 50);
 
   let startCol, endCol;
+  let removeStartCol, removeEndCol;
+  let removeStartRow, removeEndRow;
 
   for (let i = startRow; i <= endRow; i++) {
     // Check if the row exists, otherwise create a new row
@@ -49,25 +55,72 @@ function loadRadius(centerX, centerY, radius) {
     }
   }
 
-  if (player.vel.x > 0) {
-    // Moving to the right (x++)
+  if (player.isMovingRight) {
+    // Add tiles when the player is moving to the right (x++)
     startCol = Math.max(0, Math.floor((centerX - radius) / 50));
     endCol = Math.min(
       tiles[0].length - 1,
       Math.ceil((centerX + radius - player.vel.x) / 50)
     );
-  } else if (player.vel.x < 0) {
-    // Moving to the left (x--)
+
+    // Remove tiles outside the radius in the opposite direction (to the left)
+    removeStartCol = 0;
+    removeEndCol = Math.max(0, Math.floor((centerX - radius) / 50) - 1);
+    for (let i = startRow; i <= endRow; i++) {
+      for (let j = removeStartCol; j <= removeEndCol; j++) {
+        tiles[i][j] = null;
+      }
+    }
+
+    // Handle tile generation when player is moving to the left.
+  } else if (player.isMovingLeft) {
+    // Add tiles when the player is moving to the left (x--)
     startCol = Math.max(0, Math.floor((centerX - radius - player.vel.x) / 50));
     endCol = Math.min(tiles[0].length - 1, Math.ceil((centerX + radius) / 50));
+
+    // Remove tiles outside the radius in the opposite direction (to the right)
+    removeStartCol = Math.min(
+      tiles[0].length - 1,
+      Math.ceil((centerX + radius) / 50) + 1
+    );
+    removeEndCol = tiles[0].length - 1;
+
+    for (let i = startRow; i <= endRow; i++) {
+      for (let j = removeStartCol; j <= removeEndCol; j++) {
+        tiles[i][j] = null;
+      }
+    }
   } else {
     // Not moving horizontally
     startCol = Math.max(0, Math.floor((centerX - radius) / 50));
     endCol = Math.min(tiles[0].length - 1, Math.ceil((centerX + radius) / 50));
   }
+
+  if (player.pos.y > player.lastPositionY) {
+    // Player is moving down
+    removeStartRow = Math.ceil((centerY - radius - player.vel.y) / 50) + 1;
+    removeEndRow = Math.ceil((centerY + radius) / 50) - 1;
+  } else if (player.pos.y <= player.lastPositionY) {
+    removeStartRow = Math.ceil((centerY + radius) / 50);
+    removeEndRow = Math.floor((centerY - radius) / 50);
+  }
+
+  for (let i = startRow; i <= endRow; i++) {
+    for (let j = removeStartCol; j <= removeEndCol; j++) {
+      tiles[i][j] = null;
+    }
+  }
+
+  for (let i = removeStartRow; i <= removeEndRow; i++) {
+    for (let j = startCol; j <= endCol; j++) {
+      tiles[i][j] = null;
+    }
+  }
+
   for (let i = startRow; i <= endRow; i++) {
     for (let j = startCol; j <= endCol; j++) {
       const tile = tiles[i][j];
+
       if (tile) {
         tile.animate(inventory);
         player.hits(tile);
@@ -89,11 +142,10 @@ function loadRadius(centerX, centerY, radius) {
         } else if (noiseValue < 0.4 && noiseValue > 0.39) {
           tileType = gt1;
         }
-        if (tileType !== "") {
-          tiles[i][j] = new tileType(x, y);
-        }
 
-        if (enemies.length < 1 && tileType === "") {
+        if (i >= 0 && tileType !== "") {
+          tiles[i][j] = new tileType(x, y);
+        } else if (tileType === "" && noiseValue < 0.01) {
           enemies.push(new Enemy(x, y));
         }
       }
@@ -101,25 +153,13 @@ function loadRadius(centerX, centerY, radius) {
   }
 }
 
-// Hide the main menu and show the loading screen //
-
-let menuButton = document.getElementById("start-button");
-document.getElementById("main-menu").style.display = "none";
-document.getElementById("loading-screen").style.display = "none";
-
-menuButton.addEventListener("click", () => {
-  menuButtonIsClicked = true;
-  document.getElementById("main-menu").style.display = "none";
-  document.getElementById("loading-screen").style.display = "block";
-});
-
 function draw() {
   clear();
   background("#2E4057");
 
   push();
 
-  translate(canvasWidth / 2 - player.pos.x, canvasHeight / 4 - player.pos.y);
+  translate(canvasWidth / 2 - player.pos.x, canvasHeight / 6 - player.pos.y);
 
   for (const row of tiles) {
     for (const tile of row) {
@@ -137,17 +177,15 @@ function draw() {
   player.move();
   player.update();
 
-  // Update the enemy functions
-
   for (const enemy of enemies) {
     enemy.animate();
     enemy.update();
     enemy.alertedByPlayer(player);
-    // player.hits(enemy);
-    // enemy.hits(player);
   }
 
-  loadRadius(player.pos.x, player.pos.y, 300);
+  loadRadius(player.pos.x, player.pos.y, 400);
+
+  // Update the enemy functions
 
   pop();
 
@@ -172,6 +210,7 @@ function keyPressed() {
         const currentTile = tiles[y][x];
 
         // Check if the current tile is not null or undefined and is being collided with by the player and if the tiles' hitcount is lower than its max hitcount.
+
         if (
           currentTile &&
           player.hits(currentTile) &&
@@ -182,8 +221,8 @@ function keyPressed() {
             (keyIsDown(37) &&
               player.pos.x > currentTile.pos.x &&
               player.pos.y > currentTile.pos.y) ||
+            (keyIsDown(38) && player.hitsTop && player.hits(currentTile)) ||
             (keyIsDown(39) && player.pos.x < currentTile.pos.x) ||
-            (keyIsDown(38) && player.pos.y - player.s > currentTile.pos.y) ||
             (keyIsDown(40) && player.pos.y < currentTile.pos.y)
           ) {
             currentTile.hits += 1;
@@ -191,9 +230,11 @@ function keyPressed() {
         }
 
         // Check if the current tiles' hitcount is equal to its max hitcount, destroy it if it returns true and reset the hitcount back to zero.
+
         if (currentTile && currentTile.hits === currentTile.maxHits) {
           player.destroyTile(tiles);
           currentTile.hits = 0;
+          currentTile.isDestroyed = true;
 
           if (inventory.resources.length < inventory.capacity) {
             if (currentTile instanceof gt0) {
@@ -206,14 +247,6 @@ function keyPressed() {
               inventory.addResources(new Gold());
             }
           }
-        }
-        /*  i have experienced a bug where the tiles' hitcount may continue to increment beyond a tiles' max hitcount despite being destroyed. This is 
-        likely because the player is colliding with several hitboxes at once, for instance from both the bottom of the player and the right or left. 
-        The line of code below checks if the the currentTiles hitcount is equal to or greater than its' maxcount and if it returns true it sets the hitcount 
-        back to zero again. */
-
-        if (currentTile && currentTile.hits >= currentTile.maxHits) {
-          currentTile.hits = 0;
         }
       }
     }
@@ -232,5 +265,13 @@ function keyPressed() {
 
 function assetsAreLoaded() {
   // Check if your game assets are loaded here
-  return true;
+  // For example, you could check if a specific image or audio file has been loaded
+  // You can use preloading techniques or check the status of individual assets
+  // Return true if all assets are loaded, otherwise return false
+  // Example implementation:
+  // if (gameImage.isLoaded && gameAudio.isLoaded) {
+  //   return true;
+  // } else {
+  //   return false;
+  // }
 }

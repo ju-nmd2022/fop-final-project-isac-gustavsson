@@ -5,6 +5,7 @@ class Tile {
     this.hits = 0;
     this.maxHits = maxHits;
     this.resources = resources;
+    this.isDestroyed = false;
   }
 }
 
@@ -49,7 +50,7 @@ class ct extends Tile {
 class st extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
-    this.maxHits = 4;
+    this.maxHits = 3;
   }
 
   animate(inventory) {

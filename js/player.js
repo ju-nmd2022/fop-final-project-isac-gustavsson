@@ -7,11 +7,14 @@ class Player {
     this.gravity = 0.5;
     this.s = 25;
     this.isGrounded = false;
+    this.isMovingRight = false;
+    this.isMovingLeft = false;
+    this.hitsTop = false;
 
     this.color = "#C933FF";
   }
 
-  destroyTile(tiles) {
+  destroyTile(tiles, tile) {
     // Calculate the x-coordinate and y-coordinate of the player's center
 
     const playerCenterX = this.pos.x + this.s / 2;
@@ -141,6 +144,14 @@ class Player {
       playerBot > tileTop &&
       this.pos.y < tileBot;
 
+    const threshold = 5;
+
+    const isTileAbove =
+      tileBot <= this.pos.y &&
+      this.pos.y - tileBot <= threshold &&
+      playerRight > tileLeft &&
+      this.pos.x < tileRight;
+
     // Determine collisions based on direction
 
     if (hitFromBot) {
@@ -152,7 +163,7 @@ class Player {
     }
 
     if (hitFromTop) {
-      this.pos.y = tileBot;
+      this.pos.y = tile.pos.y + tile.s;
       this.vel.y = 0;
 
       return true;
@@ -172,6 +183,11 @@ class Player {
       return true;
     }
 
+    if (isTileAbove) {
+      this.hitsTop = true;
+      return true;
+    }
+
     return false;
   }
 
@@ -185,16 +201,20 @@ class Player {
       // Set isGrounded to false after jumping.
       this.isGrounded = false;
     }
+
+    return false;
   }
 
   move(tile) {
     if (keyIsDown(65)) {
-      this.pos.x -= 5;
-    }
+      this.pos.x -= 10;
+      this.isMovingLeft = true;
+    } else this.isMovingLeft = false;
 
     if (keyIsDown(68)) {
-      this.pos.x += 5;
-    }
+      this.pos.x += 10;
+      this.isMovingRight = true;
+    } else this.isMovingRight = false;
 
     if (keyIsDown(32)) {
       this.jump();
@@ -203,7 +223,6 @@ class Player {
 
   update() {
     // applies gravity to player object
-
     this.vel.y += this.gravity;
     this.pos.add(this.vel);
   }
