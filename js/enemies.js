@@ -11,6 +11,7 @@ class Enemy extends Player {
     this.isAlerted = false;
     this.isColliding = false;
     this.isJumping = false;
+    this.hasSpawned = false;
   }
 
   animate() {
@@ -152,14 +153,15 @@ class Enemy extends Player {
       this.pos.x = tileRight;
       this.vel.x = 0;
       this.jump();
+
       return true;
     }
 
     if (this.isJumping && hitFromRight && enemyBot > tileTop) {
       this.pos.x -= 1;
       this.vel.x = 0;
-
       this.isJumping = false;
+
       return true;
     }
 

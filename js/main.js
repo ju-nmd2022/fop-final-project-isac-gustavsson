@@ -8,11 +8,16 @@ let menuButtonIsClicked = false;
 
 let tiles = [];
 
-let enemies = [];
-let gravel;
+let enemies = []; // Array to store enemy objects.
+let spawnedEnemies = []; // Array to store enemy spawn positions.
+let maxEnemies = 5;
 let player;
 
 let inventory;
+
+// variables for image-handling
+
+let grass;
 
 // main menu and loading screen //
 
@@ -26,14 +31,18 @@ menuButton.addEventListener("click", () => {
   document.getElementById("loading-screen").style.display = "block";
 });
 
+function preload() {
+  grass = loadImage("assets/grasstile.png");
+}
+
 function setup() {
   const canvas = createCanvas(canvasWidth, canvasHeight);
 
   player = new Player(centerX, centerY);
   inventory = new Inventory();
 
-  tileCols = Math.ceil(centerX * 50);
-  tileRows = Math.ceil(centerY * 50);
+  tileCols = Math.ceil(centerX * 20);
+  tileRows = Math.ceil(centerY * 100);
 
   tiles = Array.from({ length: tileRows }, () =>
     Array.from({ length: tileCols })
@@ -66,16 +75,15 @@ function loadRadius(centerX, centerY, radius) {
     // Remove tiles outside the radius in the opposite direction (to the left)
     removeStartCol = 0;
     removeEndCol = Math.max(0, Math.floor((centerX - radius) / 50) - 1);
+
     for (let i = startRow; i <= endRow; i++) {
       for (let j = removeStartCol; j <= removeEndCol; j++) {
         tiles[i][j] = null;
       }
     }
-
-    // Handle tile generation when player is moving to the left.
   } else if (player.isMovingLeft) {
     // Add tiles when the player is moving to the left (x--)
-    startCol = Math.max(0, Math.floor((centerX - radius - player.vel.x) / 50));
+    startCol = Math.max(0, Math.floor((centerX - radius) / 50));
     endCol = Math.min(tiles[0].length - 1, Math.ceil((centerX + radius) / 50));
 
     // Remove tiles outside the radius in the opposite direction (to the right)
@@ -96,24 +104,31 @@ function loadRadius(centerX, centerY, radius) {
     endCol = Math.min(tiles[0].length - 1, Math.ceil((centerX + radius) / 50));
   }
 
-  if (player.pos.y > player.lastPositionY) {
-    // Player is moving down
-    removeStartRow = Math.ceil((centerY - radius - player.vel.y) / 50) + 1;
-    removeEndRow = Math.ceil((centerY + radius) / 50) - 1;
-  } else if (player.pos.y <= player.lastPositionY) {
-    removeStartRow = Math.ceil((centerY + radius) / 50);
-    removeEndRow = Math.floor((centerY - radius) / 50);
-  }
+  if (player.vel.y > 0) {
+    // Remove tiles above the radius when the player is moving downwards (y++)
+    const removeStartRow = Math.max(1, Math.floor((centerY - radius) / 50));
+    const removeEndRow = Math.max(
+      0,
+      Math.floor((centerY - radius / 4) / 50) - 1
+    );
 
-  for (let i = startRow; i <= endRow; i++) {
-    for (let j = removeStartCol; j <= removeEndCol; j++) {
-      tiles[i][j] = null;
+    for (let i = removeStartRow; i <= removeEndRow; i++) {
+      for (let j = startCol; j <= endCol; j++) {
+        tiles[i][j] = null;
+      }
     }
-  }
+  } else if (player.vel.y < 0) {
+    // Remove tiles below the radius when the player is moving upwards (y--)
+    removeStartRow = Math.min(
+      tiles.length - 1,
+      Math.ceil((centerY + radius) / 50) + 1
+    );
+    removeEndRow = tiles.length - 1;
 
-  for (let i = removeStartRow; i <= removeEndRow; i++) {
-    for (let j = startCol; j <= endCol; j++) {
-      tiles[i][j] = null;
+    for (let i = removeStartRow; i <= removeEndRow; i++) {
+      for (let j = startCol; j <= endCol; j++) {
+        tiles[i][j] = null;
+      }
     }
   }
 
@@ -133,8 +148,6 @@ function loadRadius(centerX, centerY, radius) {
 
         if (i === 0) {
           tileType = gt0;
-        } else if (noiseValue < 0.9 && noiseValue > 0.7) {
-          tileType = gt0;
         } else if (noiseValue < 0.7 && noiseValue > 0.5) {
           tileType = ct;
         } else if (noiseValue < 0.5 && noiseValue > 0.4) {
@@ -143,9 +156,27 @@ function loadRadius(centerX, centerY, radius) {
           tileType = gt1;
         }
 
+        if (i < endRow + 1 && j === 0) {
+          tileType = gt1;
+        } else if (i < endRow + 1 && j === 1) {
+          tileType = "";
+        }
+
         if (i >= 0 && tileType !== "") {
           tiles[i][j] = new tileType(x, y);
-        } else if (tileType === "" && noiseValue < 0.01) {
+        }
+        if (i === 20) {
+          tileType = gt1;
+        }
+
+        if (
+          i > 0 &&
+          tileType === "" &&
+          spawnedEnemies.length < maxEnemies &&
+          noiseValue < 0.8 &&
+          !spawnedEnemies.some((pos) => pos.x === x && pos.y === y)
+        ) {
+          spawnedEnemies.push({ x, y });
           enemies.push(new Enemy(x, y));
         }
       }
@@ -159,14 +190,17 @@ function draw() {
 
   push();
 
-  translate(canvasWidth / 2 - player.pos.x, canvasHeight / 6 - player.pos.y);
+  translate(canvasWidth / 2 - player.pos.x, canvasHeight / 4 - player.pos.y);
 
   for (const row of tiles) {
     for (const tile of row) {
       if (tile) {
         for (const enemy of enemies) {
           //  Update enemy / tile object relations.
-          enemy.hits(tile);
+
+          if (enemy.hits(tile)) {
+            enemy.isGrounded = true;
+          }
         }
       }
     }

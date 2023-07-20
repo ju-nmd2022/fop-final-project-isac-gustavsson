@@ -10,11 +10,15 @@ class Player {
     this.isMovingRight = false;
     this.isMovingLeft = false;
     this.hitsTop = false;
+    this.isFalling = false;
+    this.isMovingUp = false;
+    this.isMovingDown = false;
+    this.prevPosY = this.pos.y;
 
     this.color = "#C933FF";
   }
 
-  destroyTile(tiles, tile) {
+  destroyTile(tiles) {
     // Calculate the x-coordinate and y-coordinate of the player's center
 
     const playerCenterX = this.pos.x + this.s / 2;
@@ -200,6 +204,8 @@ class Player {
 
       // Set isGrounded to false after jumping.
       this.isGrounded = false;
+
+      this.isMovingUp = true;
     }
 
     return false;
@@ -207,12 +213,12 @@ class Player {
 
   move(tile) {
     if (keyIsDown(65)) {
-      this.pos.x -= 10;
+      this.pos.x -= 8;
       this.isMovingLeft = true;
     } else this.isMovingLeft = false;
 
     if (keyIsDown(68)) {
-      this.pos.x += 10;
+      this.pos.x += 8;
       this.isMovingRight = true;
     } else this.isMovingRight = false;
 
