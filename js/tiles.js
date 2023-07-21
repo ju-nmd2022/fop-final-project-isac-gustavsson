@@ -6,7 +6,6 @@ class Tile {
     this.maxHits = maxHits;
     this.resources = resources;
     this.isDestroyed = false;
-    this.grass = grass;
   }
 }
 
@@ -16,13 +15,14 @@ class gt0 extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
     this.maxHits = 1;
+    this.grass = grass;
   }
 
   animate(inventory) {
     push();
-    translate(this.pos.x - 14, this.pos.y - 13);
+    translate(this.pos.x - 13, this.pos.y - 12.5);
     stroke("#2E4057");
-    image(this.grass, 0, 0, this.s, this.s, 0, 0, this.s * 1.5, this.s * 2);
+    image(this.grass, 0, 0, this.s, this.s, 0, 0);
     pop();
   }
 }
@@ -33,6 +33,7 @@ class ct extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
     this.maxHits = 2;
+    this.gravel = gravel;
   }
 
   animate(inventory) {
@@ -40,7 +41,18 @@ class ct extends Tile {
     translate(this.pos.x - 12.5, this.pos.y - 12.5);
     stroke("#2E4057");
     fill("#977B5E");
-    rect(0, 0, this.s, this.s);
+    // rect(0, 0, this.s, this.s);
+    image(
+      this.gravel,
+      0,
+      0,
+      this.s,
+      this.s,
+      0,
+      0,
+      this.gravel.width,
+      this.gravel.height
+    );
     pop();
   }
 }
@@ -51,6 +63,7 @@ class st extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
     this.maxHits = 3;
+    this.stone = stone;
   }
 
   animate(inventory) {
@@ -58,7 +71,19 @@ class st extends Tile {
     translate(this.pos.x - 12.5, this.pos.y - 12.5);
     stroke("#2E4057");
     fill("#B3B9BD");
-    rect(0, 0, this.s, this.s);
+    // rect(0, 0, this.s, this.s);
+    image(
+      this.stone,
+      0,
+      0,
+      this.s,
+      this.s,
+      0,
+      0,
+      this.stone.width,
+      this.stone.height
+    );
+
     pop();
   }
 }
@@ -69,6 +94,7 @@ class gt1 extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
     this.maxHits = 8;
+    this.gold = gold;
   }
 
   animate(inventory) {
@@ -76,7 +102,19 @@ class gt1 extends Tile {
     translate(this.pos.x - 12.5, this.pos.y - 12.5);
     stroke("#2E4057");
     fill("#FAC05E");
-    rect(0, 0, this.s, this.s);
+    // rect(0, 0, this.s, this.s);
+    image(
+      this.gold,
+      0,
+      0,
+      this.s,
+      this.s,
+      0,
+      0,
+      this.gold.width,
+      this.gold.height
+    );
+
     pop();
   }
 }

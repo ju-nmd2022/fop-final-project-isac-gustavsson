@@ -18,6 +18,9 @@ let inventory;
 // variables for image-handling
 
 let grass;
+let gravel;
+let stone;
+let gold;
 
 // main menu and loading screen //
 
@@ -32,7 +35,10 @@ menuButton.addEventListener("click", () => {
 });
 
 function preload() {
-  grass = loadImage("assets/grasstile.png");
+  grass = loadImage("assets/grass2.png");
+  gravel = loadImage("assets/gravel2.png");
+  stone = loadImage("assets/stonetile.png");
+  gold = loadImage("assets/goldtile.png");
 }
 
 function setup() {
@@ -144,29 +150,24 @@ function loadRadius(centerX, centerY, radius) {
         const y = i * 50;
         const noiseValue = noise(x / 100, y / 100);
 
-        let tileType = "";
+        let tileType;
 
         if (i === 0) {
           tileType = gt0;
-        } else if (noiseValue < 0.7 && noiseValue > 0.5) {
+        } else if (noiseValue < 0.9 && noiseValue > 0.5) {
           tileType = ct;
         } else if (noiseValue < 0.5 && noiseValue > 0.4) {
           tileType = st;
         } else if (noiseValue < 0.4 && noiseValue > 0.39) {
           tileType = gt1;
-        }
+        } else tileType = "";
 
-        if (i < endRow + 1 && j === 0) {
-          tileType = gt1;
-        } else if (i < endRow + 1 && j === 1) {
+        if (i < endRow + 1 && j === 1) {
           tileType = "";
         }
 
         if (i >= 0 && tileType !== "") {
           tiles[i][j] = new tileType(x, y);
-        }
-        if (i === 20) {
-          tileType = gt1;
         }
 
         if (
@@ -186,7 +187,7 @@ function loadRadius(centerX, centerY, radius) {
 
 function draw() {
   clear();
-  background("#2E4057");
+  background("#111");
 
   push();
 
@@ -217,7 +218,7 @@ function draw() {
     enemy.alertedByPlayer(player);
   }
 
-  loadRadius(player.pos.x, player.pos.y, 400);
+  loadRadius(player.pos.x, player.pos.y, 600);
 
   // Update the enemy functions
 
