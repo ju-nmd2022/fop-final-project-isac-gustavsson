@@ -17,6 +17,10 @@ let inventory;
 
 // variables for image-handling
 
+let playerSprite;
+let currentFrame;
+const frameDelay = 7;
+
 let grass;
 let gravel;
 let stone;
@@ -39,6 +43,8 @@ function preload() {
   gravel = loadImage("assets/gravel2.png");
   stone = loadImage("assets/stonetile.png");
   gold = loadImage("assets/goldtile.png");
+
+  playerSprite = loadImage("assets/playerSheet.png");
 }
 
 function setup() {

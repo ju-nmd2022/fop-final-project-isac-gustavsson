@@ -16,6 +16,11 @@ class Player {
     this.prevPosY = this.pos.y;
 
     this.color = "#C933FF";
+
+    this.playerSprite = playerSprite;
+    this.frameWidth = 128;
+    this.frameHeight = 128;
+    this.currentFrame = 0;
   }
 
   destroyTile(tiles) {
@@ -231,6 +236,21 @@ class Player {
     // applies gravity to player object
     this.vel.y += this.gravity;
     this.pos.add(this.vel);
+
+    if (this.currentFrame >= 4) {
+      this.currentFrame = 0;
+    }
+
+    if (
+      this.isMovingRight &&
+      this.currentFrame <= 4 &&
+      (this.currentFrame * this.frameWidth) % 4 === 0 &&
+      frameCount % frameDelay === 0 // Add this condition
+    ) {
+      this.currentFrame++;
+    } else if (!this.isMovingRight) {
+      this.currentFrame = 0;
+    }
   }
 
   animate() {
@@ -238,7 +258,18 @@ class Player {
     translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2);
     noStroke();
     fill(this.color);
-    rect(0, 0, this.s, this.s);
+    image(
+      this.playerSprite,
+      this.s - this.frameWidth / 2.8,
+      -this.s * 1.8,
+      this.frameWidth / 2,
+      this.frameHeight / 2,
+      this.currentFrame * this.frameWidth,
+      0,
+      this.frameWidth,
+      this.frameHeight
+    );
+
     pop();
   }
 }
