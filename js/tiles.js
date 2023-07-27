@@ -6,6 +6,25 @@ class Tile {
     this.maxHits = maxHits;
     this.resources = resources;
     this.isDestroyed = false;
+    this.isNotATile = false;
+  }
+}
+
+class Emptile extends Tile {
+  constructor(x, y, s) {
+    super(x, y, s);
+    this.maxHits = null;
+    this.isNotATile = true;
+  }
+
+  animate(inventory) {
+    push();
+    translate(this.pos.x - 14, this.pos.y - 14);
+    noStroke();
+    noFill();
+    rect(0.3, -0.2, this.s + 0.05, this.s + 0.06);
+
+    pop();
   }
 }
 
@@ -14,15 +33,14 @@ class Tile {
 class gt0 extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
-    this.maxHits = 1;
+    this.maxHits = 2;
     this.grass = grass;
   }
 
   animate(inventory) {
     push();
-    translate(this.pos.x - 13, this.pos.y - 12.5);
-    stroke("#2E4057");
-    image(this.grass, 0, 0, this.s, this.s, 0, 0);
+    translate(this.pos.x - 14, this.pos.y - 14);
+    image(this.grass, 0, 0, this.s + 0.5, this.s);
     pop();
   }
 }
@@ -38,21 +56,9 @@ class ct extends Tile {
 
   animate(inventory) {
     push();
-    translate(this.pos.x - 12.5, this.pos.y - 12.5);
-    stroke("#2E4057");
-    fill("#977B5E");
-    // rect(0, 0, this.s, this.s);
-    image(
-      this.gravel,
-      0,
-      0,
-      this.s,
-      this.s,
-      0,
-      0,
-      this.gravel.width,
-      this.gravel.height
-    );
+    translate(this.pos.x - 14, this.pos.y - 14);
+    noStroke();
+    image(this.gravel, 0.1, -0.5, this.s + 0.5, this.s + 0.6);
     pop();
   }
 }
@@ -68,16 +74,14 @@ class st extends Tile {
 
   animate(inventory) {
     push();
-    translate(this.pos.x - 12.5, this.pos.y - 12.5);
-    stroke("#2E4057");
-    fill("#B3B9BD");
-    // rect(0, 0, this.s, this.s);
+    translate(this.pos.x - 14, this.pos.y - 14);
+    noStroke();
     image(
       this.stone,
-      0,
-      0,
-      this.s,
-      this.s,
+      0.1,
+      -0.5,
+      this.s + 0.5,
+      this.s + 0.6,
       0,
       0,
       this.stone.width,
@@ -99,16 +103,14 @@ class gt1 extends Tile {
 
   animate(inventory) {
     push();
-    translate(this.pos.x - 12.5, this.pos.y - 12.5);
-    stroke("#2E4057");
-    fill("#FAC05E");
-    // rect(0, 0, this.s, this.s);
+    translate(this.pos.x - 14, this.pos.y - 14);
+    noStroke();
     image(
       this.gold,
-      0,
-      0,
-      this.s,
-      this.s,
+      0.1,
+      -0.5,
+      this.s + 0.5,
+      this.s + 0.6,
       0,
       0,
       this.gold.width,

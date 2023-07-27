@@ -15,12 +15,12 @@ class Player {
     this.isMovingDown = false;
     this.prevPosY = this.pos.y;
 
-    this.color = "#C933FF";
-
-    this.playerSprite = playerSprite;
-    this.frameWidth = 128;
-    this.frameHeight = 128;
+    this.frameWidth = 100;
+    this.frameHeight = 100;
     this.currentFrame = 0;
+
+    this.isAimingLeft = false;
+    this.isAimingRight = false;
   }
 
   destroyTile(tiles) {
@@ -53,6 +53,11 @@ class Player {
         // Calculate the maximum allowed distance to destroy the tile
 
         const maxDistance = this.s / 2 + tile.s / 2;
+
+        if (tile && tile.hits >= tile.maxHits) {
+          // Replace the destroyed tile with an Emptile at the same position
+          tiles[y][x] = new Emptile(tile.pos.x, tile.pos.y, tile.s);
+        }
 
         // Below is the logic to check if the player is holding the correct keys in relation to the distance between the player and the tile (in order to destroy the tile).
 
@@ -88,7 +93,7 @@ class Player {
         // Set the tile above as the tile to be destroyed if the Up Arrow Key is held and the tile is within the maximum allowed distance.
         else if (
           keyIsDown(40) &&
-          distanceX <= maxDistance - 10 &&
+          distanceX <= maxDistance &&
           distanceY <= maxDistance &&
           playerCenterY < tileCenterY &&
           (tileToDestroy === null || tileCenterY < tileToDestroy.pos.y)
@@ -109,7 +114,7 @@ class Player {
   }
 
   hits(tile) {
-    if (!tile) {
+    if (!tile || tile.isNotATile === true || tile.isDestroyed) {
       return false;
     }
 
@@ -120,7 +125,6 @@ class Player {
 
     const tileTop = tile.pos.y;
     const tileBot = tile.pos.y + tile.s;
-    const tileLeft = tile.pos.x;
     const tileRight = tile.pos.x + tile.s;
 
     // Check for collisions from different directions
@@ -129,36 +133,36 @@ class Player {
       this.vel.y >= 0 &&
       playerBot >= tileTop &&
       this.pos.y < tileTop &&
-      playerRight > tileLeft &&
+      playerRight > tile.pos.x &&
       this.pos.x < tileRight;
 
     const hitFromTop =
       this.vel.y <= 0 &&
       this.pos.y <= tileBot &&
       playerBot > tileBot &&
-      playerRight > tileLeft &&
-      this.pos.x < tileRight;
+      playerRight > tile.pos.x + 4 &&
+      this.pos.x < tileRight - 4;
 
     const hitFromRight =
       this.vel.x >= 0 &&
       this.pos.x <= tileRight &&
-      playerRight > tileRight &&
+      playerRight >= tileRight &&
       playerBot > tileTop &&
       this.pos.y < tileBot;
 
     const hitFromLeft =
       this.vel.x <= 0 &&
-      playerRight >= tileLeft &&
-      this.pos.x < tileLeft &&
+      playerRight >= tile.pos.x &&
+      this.pos.x < tile.pos.x + tile.s &&
       playerBot > tileTop &&
       this.pos.y < tileBot;
 
-    const threshold = 5;
+    const threshold = 25;
 
     const isTileAbove =
       tileBot <= this.pos.y &&
       this.pos.y - tileBot <= threshold &&
-      playerRight > tileLeft &&
+      playerRight > tile.pos.x &&
       this.pos.x < tileRight;
 
     // Determine collisions based on direction
@@ -186,7 +190,7 @@ class Player {
     }
 
     if (hitFromLeft) {
-      this.pos.x = tileLeft - this.s;
+      this.pos.x = tile.pos.x - this.s;
       this.vel.x = 0;
 
       return true;
@@ -195,7 +199,7 @@ class Player {
     if (isTileAbove) {
       this.hitsTop = true;
       return true;
-    }
+    } else this.hitsTop = false;
 
     return false;
   }
@@ -216,14 +220,14 @@ class Player {
     return false;
   }
 
-  move(tile) {
+  move() {
     if (keyIsDown(65)) {
-      this.pos.x -= 8;
+      this.pos.x -= 4;
       this.isMovingLeft = true;
     } else this.isMovingLeft = false;
 
     if (keyIsDown(68)) {
-      this.pos.x += 8;
+      this.pos.x += 4;
       this.isMovingRight = true;
     } else this.isMovingRight = false;
 
@@ -237,38 +241,126 @@ class Player {
     this.vel.y += this.gravity;
     this.pos.add(this.vel);
 
-    if (this.currentFrame >= 4) {
-      this.currentFrame = 0;
-    }
-
     if (
+      !this.isMovingLeft &&
       this.isMovingRight &&
-      this.currentFrame <= 4 &&
-      (this.currentFrame * this.frameWidth) % 4 === 0 &&
+      this.currentFrame < 5 &&
+      (this.currentFrame * this.frameWidth) % 2 === 0 &&
       frameCount % frameDelay === 0 // Add this condition
     ) {
       this.currentFrame++;
-    } else if (!this.isMovingRight) {
+    }
+
+    if (
+      !this.isMovingRight &&
+      this.isMovingLeft &&
+      this.currentFrame <= 4 &&
+      (this.currentFrame * this.frameWidth) % 2 === 0 &&
+      frameCount % frameDelay === 0 // Add this condition
+    ) {
+      this.currentFrame++;
+    }
+
+    if (!this.isMovingLeft && !this.isMovingRight) {
+      this.currentFrame = 0;
+    }
+
+    if (keyIsDown(37)) {
+      this.isAimingLeft = true;
+    } else {
+      this.isAimingLeft = false;
+    }
+
+    if (keyIsDown(39)) {
+      this.isAimingRight = true;
+    } else {
+      this.isAimingRight = false;
+    }
+
+    if (this.currentFrame === 4) {
       this.currentFrame = 0;
     }
   }
 
   animate() {
     push();
-    translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2);
-    noStroke();
-    fill(this.color);
-    image(
-      this.playerSprite,
-      this.s - this.frameWidth / 2.8,
-      -this.s * 1.8,
-      this.frameWidth / 2,
-      this.frameHeight / 2,
-      this.currentFrame * this.frameWidth,
-      0,
-      this.frameWidth,
-      this.frameHeight
-    );
+
+    translate(this.pos.x - 18, this.pos.y - 13);
+
+    if (
+      !this.isMovingRight &&
+      !this.isMovingLeft &&
+      !this.isAimingLeft &&
+      !this.isAimingRight
+    ) {
+      image(
+        playerIdle,
+        0,
+        -10,
+        this.frameWidth / 3,
+        this.frameHeight / 3,
+        0,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    }
+
+    if (this.isMovingRight) {
+      image(
+        playerSpriteRight,
+        0,
+        -10,
+        this.frameWidth / 3,
+        this.frameHeight / 3,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    }
+
+    if (this.isMovingLeft) {
+      image(
+        playerSpriteLeft,
+        0,
+        -10,
+        this.frameWidth / 3,
+        this.frameHeight / 3,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    }
+
+    if (this.isAimingLeft && !this.isMovingRight) {
+      image(
+        playerSpriteLeft,
+        0,
+        -10,
+        this.frameWidth / 3,
+        this.frameHeight / 3,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    }
+
+    if (this.isAimingRight && !this.isMovingLeft) {
+      image(
+        playerSpriteRight,
+        0,
+        -10,
+        this.frameWidth / 3,
+        this.frameHeight / 3,
+        this.currentFrame * this.frameWidth * 4,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    }
 
     pop();
   }

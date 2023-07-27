@@ -16,7 +16,7 @@ class Enemy extends Player {
 
   animate() {
     push();
-    translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2);
+    translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2 - 1.5);
     noStroke();
     fill(this.color);
     /****** HitBox ************/
@@ -26,7 +26,7 @@ class Enemy extends Player {
 
   alertedByPlayer(player) {
     let distance = dist(this.pos.x, this.pos.y, player.pos.x, player.pos.y);
-    let threshold = 150;
+    let threshold = 200;
 
     // Check if the player is within the perimeter to alert enemy.
     if (distance < threshold) {
@@ -40,7 +40,6 @@ class Enemy extends Player {
     // check if player and enemy are colliding.
     if (distance < this.s / 2 + player.s / 2) {
       this.isColliding = true;
-      console.log("collided");
       this.color = "#EA3546";
     } else this.isColliding = false;
   }
@@ -57,6 +56,11 @@ class Enemy extends Player {
 
       // Set isGrounded to false after jumping.
       this.isGrounded = false;
+    }
+
+    if (this.isGrounded) {
+      this.isJumping = false;
+      this.vel.y = 0;
     }
 
     return false;
@@ -89,7 +93,6 @@ class Enemy extends Player {
 
     const tileTop = tile.pos.y;
     const tileBot = tile.pos.y + tile.s;
-    const tileLeft = tile.pos.x;
     const tileRight = tile.pos.x + tile.s;
 
     const tileCenterX = tile.pos.x + tile.s / 2;
@@ -101,29 +104,37 @@ class Enemy extends Player {
       this.vel.y >= 0 &&
       enemyBot >= tileTop &&
       this.pos.y < tileTop &&
-      enemyRight > tileLeft &&
+      enemyRight > tile.pos.x &&
       this.pos.x < tileRight;
 
     const hitFromTop =
       this.vel.y <= 0 &&
       this.pos.y <= tileBot &&
-      enemyBot > tileBot &&
-      enemyRight > tileLeft &&
+      enemyBot >= tileBot &&
+      enemyRight > tile.pos.x + 2 &&
       this.pos.x < tileRight;
 
     const hitFromRight =
       this.vel.x >= 0 &&
       this.pos.x <= tileRight &&
-      enemyRight > tileRight &&
+      enemyRight > tileRight + 1 &&
       enemyBot > tileTop &&
       this.pos.y < tileBot;
 
     const hitFromLeft =
       this.vel.x <= 0 &&
-      enemyRight >= tileLeft &&
-      this.pos.x < tileLeft &&
+      enemyRight > tile.pos.x &&
+      this.pos.x < tile.pos.x &&
       enemyBot > tileTop &&
       this.pos.y < tileBot;
+
+    const threshold = 25;
+
+    const isTileAbove =
+      tileBot <= tileTop &&
+      tileTop - tileBot <= threshold &&
+      enemyRight > tile.pos.x &&
+      this.pos.x < tileRight;
 
     // Determine collisions based on direction
 
@@ -166,13 +177,14 @@ class Enemy extends Player {
     }
 
     if (
+      !isTileAbove &&
       hitFromLeft &&
       this.isGrounded &&
       this.isAlerted &&
       enemyBot > tileCenterY &&
       this.pos.x + this.s < player.pos.x + player.s
     ) {
-      this.pos.x = tileLeft - this.s;
+      this.pos.x = tile.pos.x - this.s;
       this.vel.x = 0;
       this.jump();
       return true;
@@ -185,6 +197,11 @@ class Enemy extends Player {
       this.isJumping = false;
       return true;
     }
+
+    if (isTileAbove) {
+      this.hitsTop = true;
+      return true;
+    } else this.hitsTop = false;
 
     return false;
   }

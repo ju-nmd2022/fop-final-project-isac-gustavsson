@@ -10,21 +10,25 @@ let tiles = [];
 
 let enemies = []; // Array to store enemy objects.
 let spawnedEnemies = []; // Array to store enemy spawn positions.
-let maxEnemies = 5;
+let maxEnemies = 10;
 let player;
 
 let inventory;
 
 // variables for image-handling
 
-let playerSprite;
+let playerSpriteRight;
+let playerSpriteLeft;
+let playerIdle;
 let currentFrame;
-const frameDelay = 7;
+const frameDelay = 8;
 
 let grass;
 let gravel;
 let stone;
 let gold;
+
+let zoomFactor = 2.8;
 
 // main menu and loading screen //
 
@@ -44,7 +48,9 @@ function preload() {
   stone = loadImage("assets/stonetile.png");
   gold = loadImage("assets/goldtile.png");
 
-  playerSprite = loadImage("assets/playerSheet.png");
+  playerIdle = loadImage("assets/playerIdle.png");
+  playerSpriteRight = loadImage("assets/playerRight.png");
+  playerSpriteLeft = loadImage("assets/playerLeft.png");
 }
 
 function setup() {
@@ -62,7 +68,7 @@ function setup() {
 }
 
 function loadRadius(centerX, centerY, radius) {
-  const startRow = Math.ceil((centerY - radius / 2) / 50) + 1;
+  const startRow = Math.floor((0, centerY - radius / 3) / 50);
   const endRow = Math.ceil((centerY + radius) / 50);
 
   let startCol, endCol;
@@ -86,7 +92,7 @@ function loadRadius(centerX, centerY, radius) {
 
     // Remove tiles outside the radius in the opposite direction (to the left)
     removeStartCol = 0;
-    removeEndCol = Math.max(0, Math.floor((centerX - radius) / 50) - 1);
+    removeEndCol = Math.max(-1, Math.floor((centerX - radius) / 50) - 1);
 
     for (let i = startRow; i <= endRow; i++) {
       for (let j = removeStartCol; j <= removeEndCol; j++) {
@@ -156,86 +162,34 @@ function loadRadius(centerX, centerY, radius) {
         const y = i * 50;
         const noiseValue = noise(x / 100, y / 100);
 
-        let tileType;
+        let tileType = Emptile;
 
         if (i === 0) {
           tileType = gt0;
-        } else if (noiseValue < 0.9 && noiseValue > 0.5) {
+        } else if (noiseValue < 0.9 && noiseValue > 0.45) {
           tileType = ct;
         } else if (noiseValue < 0.5 && noiseValue > 0.4) {
           tileType = st;
         } else if (noiseValue < 0.4 && noiseValue > 0.39) {
           tileType = gt1;
-        } else tileType = "";
-
-        if (i < endRow + 1 && j === 1) {
-          tileType = "";
         }
 
-        if (i >= 0 && tileType !== "") {
+        if (i >= 0 && tileType !== "" && !tileType.isDestroyed) {
           tiles[i][j] = new tileType(x, y);
         }
 
         if (
           i > 0 &&
-          tileType === "" &&
+          tileType === Emptile &&
           spawnedEnemies.length < maxEnemies &&
-          noiseValue < 0.8 &&
-          !spawnedEnemies.some((pos) => pos.x === x && pos.y === y)
+          noiseValue < 0.4 &&
+          !tileType.isDestroyed
         ) {
           spawnedEnemies.push({ x, y });
           enemies.push(new Enemy(x, y));
         }
       }
     }
-  }
-}
-
-function draw() {
-  clear();
-  background("#111");
-
-  push();
-
-  translate(canvasWidth / 2 - player.pos.x, canvasHeight / 4 - player.pos.y);
-
-  for (const row of tiles) {
-    for (const tile of row) {
-      if (tile) {
-        for (const enemy of enemies) {
-          //  Update enemy / tile object relations.
-
-          if (enemy.hits(tile)) {
-            enemy.isGrounded = true;
-          }
-        }
-      }
-    }
-  }
-
-  // Update the player functions
-  player.animate();
-  player.move();
-  player.update();
-
-  for (const enemy of enemies) {
-    enemy.animate();
-    enemy.update();
-    enemy.alertedByPlayer(player);
-  }
-
-  loadRadius(player.pos.x, player.pos.y, 600);
-
-  // Update the enemy functions
-
-  pop();
-
-  if (inventory.isOpen === false) {
-    inventory.Closed();
-  }
-
-  if (inventory.isOpen === true) {
-    inventory.Open();
   }
 }
 
@@ -262,9 +216,16 @@ function keyPressed() {
             (keyIsDown(37) &&
               player.pos.x > currentTile.pos.x &&
               player.pos.y > currentTile.pos.y) ||
-            (keyIsDown(38) && player.hitsTop && player.hits(currentTile)) ||
+            (keyIsDown(38) &&
+              player.hitsTop &&
+              player.hits(currentTile) &&
+              !currentTile.isDestroyed &&
+              !currentTile.isNotATile) ||
             (keyIsDown(39) && player.pos.x < currentTile.pos.x) ||
-            (keyIsDown(40) && player.pos.y < currentTile.pos.y)
+            (keyIsDown(40) &&
+              player.pos.y < currentTile.pos.y &&
+              player.pos.x > currentTile.pos.x &&
+              player.pos.x + player.s < currentTile.pos.x + currentTile.s)
           ) {
             currentTile.hits += 1;
           }
@@ -315,4 +276,62 @@ function assetsAreLoaded() {
   // } else {
   //   return false;
   // }
+}
+
+function draw() {
+  clear();
+  background("#222E4F");
+
+  if (player.pos.y >= 100) {
+    background(0, 0, 0, 150);
+  }
+
+  push();
+
+  translate(
+    canvasWidth / 2 - player.pos.x * zoomFactor,
+    canvasHeight / 2.5 - player.pos.y * zoomFactor
+  );
+
+  scale(zoomFactor);
+
+  for (const row of tiles) {
+    for (const tile of row) {
+      if (tile && !(tile instanceof Emptile)) {
+        for (const enemy of enemies) {
+          //  Update enemy / tile object relations.
+
+          if (enemy.hits(tile)) {
+            enemy.isGrounded = true;
+          }
+        }
+      }
+    }
+  }
+
+  // Update the player functions
+
+  player.animate();
+  player.move();
+  player.update();
+
+  for (const enemy of enemies) {
+    enemy.animate();
+    enemy.update();
+    enemy.alertedByPlayer(player);
+  }
+
+  loadRadius(player.pos.x, player.pos.y, 500);
+
+  // Update the enemy functions
+
+  pop();
+
+  if (inventory.isOpen === false) {
+    inventory.Closed();
+  }
+
+  if (inventory.isOpen === true) {
+    inventory.Open();
+  }
 }
