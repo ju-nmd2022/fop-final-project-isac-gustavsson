@@ -17,9 +17,13 @@ let inventory;
 
 // variables for image-handling
 
+let playerIdle;
+let playerSpriteUp;
+let playerSpriteDown;
 let playerSpriteRight;
 let playerSpriteLeft;
-let playerIdle;
+let hitDownSprite;
+
 let currentFrame;
 const frameDelay = 8;
 
@@ -51,6 +55,9 @@ function preload() {
   playerIdle = loadImage("assets/playerIdle.png");
   playerSpriteRight = loadImage("assets/playerRight.png");
   playerSpriteLeft = loadImage("assets/playerLeft.png");
+  playerSpriteUp = loadImage("assets/playerUp.png");
+  playerSpriteDown = loadImage("assets/playerDown.png");
+  hitDownSprite = loadImage("assets/hitDown.png");
 }
 
 function setup() {

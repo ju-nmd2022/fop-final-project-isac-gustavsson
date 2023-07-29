@@ -19,8 +19,12 @@ class Player {
     this.frameHeight = 100;
     this.currentFrame = 0;
 
-    this.isAimingLeft = false;
-    this.isAimingRight = false;
+    this.isLookingLeft = false;
+    this.isLookingRight = false;
+    this.isLookingUp = false;
+
+    this.isLookingDown = false;
+    this.isHittingDown = false;
   }
 
   destroyTile(tiles) {
@@ -244,7 +248,7 @@ class Player {
     if (
       !this.isMovingLeft &&
       this.isMovingRight &&
-      this.currentFrame < 5 &&
+      this.currentFrame <= 5 &&
       (this.currentFrame * this.frameWidth) % 2 === 0 &&
       frameCount % frameDelay === 0 // Add this condition
     ) {
@@ -261,20 +265,45 @@ class Player {
       this.currentFrame++;
     }
 
-    if (!this.isMovingLeft && !this.isMovingRight) {
-      this.currentFrame = 0;
+    if (
+      !this.isMovingLeft &&
+      !this.isMovingRight &&
+      this.isHittingDown &&
+      this.currentFrame < 4 &&
+      (this.currentFrame * this.frameWidth) % 100 === 0 &&
+      frameCount % frameDelay === 0
+    ) {
+      this.currentFrame++;
     }
 
     if (keyIsDown(37)) {
-      this.isAimingLeft = true;
+      this.isLookingLeft = true;
     } else {
-      this.isAimingLeft = false;
+      this.isLookingLeft = false;
+    }
+
+    if (keyIsDown(38)) {
+      this.isLookingUp = true;
+    } else {
+      this.isLookingUp = false;
     }
 
     if (keyIsDown(39)) {
-      this.isAimingRight = true;
+      this.isLookingRight = true;
     } else {
-      this.isAimingRight = false;
+      this.isLookingRight = false;
+    }
+
+    if (keyIsDown(40)) {
+      this.isLookingDown = true;
+    } else {
+      this.isLookingDown = false;
+    }
+
+    if (this.isLookingDown && keyIsDown(69)) {
+      this.isHittingDown = true;
+    } else {
+      this.isHittingDown = false;
     }
 
     if (this.currentFrame === 4) {
@@ -290,8 +319,11 @@ class Player {
     if (
       !this.isMovingRight &&
       !this.isMovingLeft &&
-      !this.isAimingLeft &&
-      !this.isAimingRight
+      !this.isLookingLeft &&
+      !this.isLookingRight &&
+      !this.isLookingUp &&
+      !this.isLookingDown &&
+      !this.isHittingDown
     ) {
       image(
         playerIdle,
@@ -334,7 +366,12 @@ class Player {
       );
     }
 
-    if (this.isAimingLeft && !this.isMovingRight) {
+    if (
+      this.isLookingLeft &&
+      !this.isMovingRight &&
+      !this.isLookingUp &&
+      !this.isLookingDown
+    ) {
       image(
         playerSpriteLeft,
         0,
@@ -348,17 +385,69 @@ class Player {
       );
     }
 
-    if (this.isAimingRight && !this.isMovingLeft) {
+    if (
+      this.isLookingRight &&
+      !this.isMovingLeft &&
+      !this.isLookingUp &&
+      !this.isLookingDown
+    ) {
       image(
         playerSpriteRight,
         0,
         -10,
         this.frameWidth / 3,
         this.frameHeight / 3,
-        this.currentFrame * this.frameWidth * 4,
+        this.currentFrame * this.frameWidth,
         0,
         this.frameWidth,
         this.frameHeight
+      );
+    }
+
+    if (this.isLookingUp && !this.isMovingLeft && !this.isMovingRight) {
+      image(
+        playerSpriteUp,
+        -4.5,
+        -17,
+        this.frameWidth / 2,
+        this.frameHeight / 2,
+        0,
+        0,
+        this.frameWidth * 2,
+        this.frameHeight * 3
+      );
+    }
+
+    if (
+      this.isLookingDown &&
+      !this.isMovingLeft &&
+      !this.isMovingRight &&
+      !this.isHittingDown
+    ) {
+      image(
+        playerSpriteDown,
+        0,
+        -10,
+        this.frameWidth / 3,
+        this.frameHeight / 3,
+        0,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    }
+
+    if (this.isHittingDown) {
+      image(
+        hitDownSprite,
+        -18,
+        -25,
+        this.frameWidth / 2,
+        this.frameHeight / 2,
+        this.currentFrame * (this.frameWidth * 1.5),
+        0,
+        this.frameWidth + 20,
+        this.frameHeight + 30
       );
     }
 
