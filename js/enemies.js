@@ -5,7 +5,10 @@ class Enemy extends Player {
     this.vel = createVector(0, 0);
     this.gravity = 0.5;
     this.s = 25;
-    this.color = "#00CECB";
+
+    this.frameWidth = 150;
+    this.frameHeight = 150;
+    this.currentFrame = 0;
 
     this.isGrounded = false;
     this.isAlerted = false;
@@ -16,17 +19,42 @@ class Enemy extends Player {
 
   animate() {
     push();
-    translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2 - 1.5);
-    noStroke();
-    fill(this.color);
-    /****** HitBox ************/
-    rect(0, 0, this.s, this.s);
+    translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2 - 15);
+
+    if (!this.isAlerted) {
+      image(
+        batSheet,
+        -10,
+        0,
+        this.frameWidth / 4,
+        this.frameHeight / 4,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth + 10,
+        this.frameHeight
+      );
+    }
+
+    if (this.isAlerted) {
+      image(
+        batSheetAlert,
+        -10,
+        0,
+        this.frameWidth / 4,
+        this.frameHeight / 4,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth + 10,
+        this.frameHeight
+      );
+    }
+
     pop();
   }
 
   alertedByPlayer(player) {
     let distance = dist(this.pos.x, this.pos.y, player.pos.x, player.pos.y);
-    let threshold = 200;
+    let threshold = 150;
 
     // Check if the player is within the perimeter to alert enemy.
     if (distance < threshold) {
@@ -70,12 +98,24 @@ class Enemy extends Player {
     this.vel.y += this.gravity;
     this.pos.add(this.vel);
 
+    if (
+      this.currentFrame < 4 &&
+      (this.currentFrame * this.frameWidth) % 2 === 0 &&
+      frameCount % frameDelay === 0 // Add this condition
+    ) {
+      this.currentFrame++;
+    }
+
     if (this.isAlerted && this.isGrounded) {
       if (player.pos.x > this.pos.x) {
         this.pos.x += 1;
       } else if (player.pos.x < this.pos.x) {
         this.pos.x -= 1;
       }
+    }
+
+    if (this.currentFrame === 4) {
+      this.currentFrame = 0;
     }
 
     return false;

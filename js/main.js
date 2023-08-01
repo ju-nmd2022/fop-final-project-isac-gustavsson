@@ -23,6 +23,12 @@ let playerSpriteDown;
 let playerSpriteRight;
 let playerSpriteLeft;
 let hitDownSprite;
+let hitRightSprite;
+let hitLeftSprite;
+
+let batIdle;
+let batSheet;
+let batSheetAlert;
 
 let currentFrame;
 const frameDelay = 8;
@@ -58,6 +64,11 @@ function preload() {
   playerSpriteUp = loadImage("assets/playerUp.png");
   playerSpriteDown = loadImage("assets/playerDown.png");
   hitDownSprite = loadImage("assets/hitDown.png");
+  hitRightSprite = loadImage("assets/hitRight.png");
+  hitLeftSprite = loadImage("assets/hitLeft.png");
+
+  batSheet = loadImage("assets/batSheet.png");
+  batSheetAlert = loadImage("assets/batSheetAlert.png");
 }
 
 function setup() {
@@ -222,13 +233,17 @@ function keyPressed() {
           if (
             (keyIsDown(37) &&
               player.pos.x > currentTile.pos.x &&
-              player.pos.y > currentTile.pos.y) ||
+              player.pos.y > currentTile.pos.y &&
+              !player.hitsTop) ||
             (keyIsDown(38) &&
               player.hitsTop &&
               player.hits(currentTile) &&
               !currentTile.isDestroyed &&
               !currentTile.isNotATile) ||
-            (keyIsDown(39) && player.pos.x < currentTile.pos.x) ||
+            (keyIsDown(39) &&
+              player.pos.x < currentTile.pos.x &&
+              player.pos.y > currentTile.pos.y &&
+              !player.hitsTop) ||
             (keyIsDown(40) &&
               player.pos.y < currentTile.pos.y &&
               player.pos.x > currentTile.pos.x &&

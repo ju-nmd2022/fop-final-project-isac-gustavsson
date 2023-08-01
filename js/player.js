@@ -20,7 +20,11 @@ class Player {
     this.currentFrame = 0;
 
     this.isLookingLeft = false;
+    this.isHittingLeft = false;
+
     this.isLookingRight = false;
+    this.isHittingRight = false;
+
     this.isLookingUp = false;
 
     this.isLookingDown = false;
@@ -226,12 +230,12 @@ class Player {
 
   move() {
     if (keyIsDown(65)) {
-      this.pos.x -= 4;
+      this.pos.x -= 3;
       this.isMovingLeft = true;
     } else this.isMovingLeft = false;
 
     if (keyIsDown(68)) {
-      this.pos.x += 4;
+      this.pos.x += 3;
       this.isMovingRight = true;
     } else this.isMovingRight = false;
 
@@ -248,7 +252,7 @@ class Player {
     if (
       !this.isMovingLeft &&
       this.isMovingRight &&
-      this.currentFrame <= 5 &&
+      this.currentFrame <= 4 &&
       (this.currentFrame * this.frameWidth) % 2 === 0 &&
       frameCount % frameDelay === 0 // Add this condition
     ) {
@@ -270,7 +274,29 @@ class Player {
       !this.isMovingRight &&
       this.isHittingDown &&
       this.currentFrame < 4 &&
-      (this.currentFrame * this.frameWidth) % 100 === 0 &&
+      (this.currentFrame * this.frameWidth) % 2 === 0 &&
+      frameCount % frameDelay === 0
+    ) {
+      this.currentFrame++;
+    }
+
+    if (
+      !this.isMovingLeft &&
+      !this.isMovingRight &&
+      this.isHittingRight &&
+      this.currentFrame < 2 &&
+      (this.currentFrame * this.frameWidth) % 1 === 0 &&
+      frameCount % frameDelay === 0
+    ) {
+      this.currentFrame++;
+    }
+
+    if (
+      !this.isMovingLeft &&
+      !this.isMovingRight &&
+      this.isHittingLeft &&
+      this.currentFrame < 3 &&
+      (this.currentFrame * this.frameWidth) % 2 === 0 &&
       frameCount % frameDelay === 0
     ) {
       this.currentFrame++;
@@ -280,6 +306,12 @@ class Player {
       this.isLookingLeft = true;
     } else {
       this.isLookingLeft = false;
+    }
+
+    if (this.isLookingLeft && keyCode === 69) {
+      this.isHittingLeft = true;
+    } else {
+      this.isHittingLeft = false;
     }
 
     if (keyIsDown(38)) {
@@ -294,19 +326,30 @@ class Player {
       this.isLookingRight = false;
     }
 
+    if (this.isLookingRight && keyCode === 69) {
+      this.isHittingRight = true;
+    } else {
+      this.isHittingRight = false;
+    }
+
     if (keyIsDown(40)) {
       this.isLookingDown = true;
     } else {
       this.isLookingDown = false;
     }
 
-    if (this.isLookingDown && keyIsDown(69)) {
+    if (this.isLookingDown && keyCode === 69) {
       this.isHittingDown = true;
     } else {
       this.isHittingDown = false;
     }
 
     if (this.currentFrame === 4) {
+      this.currentFrame = 0;
+    } else if (
+      (this.isHittingRight && this.currentFrame >= 2) ||
+      (this.isHittingLeft && this.currentFrame >= 2)
+    ) {
       this.currentFrame = 0;
     }
   }
@@ -323,7 +366,8 @@ class Player {
       !this.isLookingRight &&
       !this.isLookingUp &&
       !this.isLookingDown &&
-      !this.isHittingDown
+      !this.isHittingDown &&
+      !this.isHittingRight
     ) {
       image(
         playerIdle,
@@ -368,6 +412,7 @@ class Player {
 
     if (
       this.isLookingLeft &&
+      !this.isHittingLeft &&
       !this.isMovingRight &&
       !this.isLookingUp &&
       !this.isLookingDown
@@ -387,6 +432,8 @@ class Player {
 
     if (
       this.isLookingRight &&
+      !this.isHittingRight &&
+      !this.isHittingLeft &&
       !this.isMovingLeft &&
       !this.isLookingUp &&
       !this.isLookingDown
@@ -448,6 +495,34 @@ class Player {
         0,
         this.frameWidth + 20,
         this.frameHeight + 30
+      );
+    }
+
+    if (!this.isMovingRight && !this.isMovingLeft && this.isHittingRight) {
+      image(
+        hitRightSprite,
+        2,
+        -16,
+        this.frameWidth / 3,
+        this.frameHeight / 2.5,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight + 25
+      );
+    }
+
+    if (!this.isMovingLeft && !this.isMovingRight && this.isHittingLeft) {
+      image(
+        hitLeftSprite,
+        2,
+        -16,
+        this.frameWidth / 3,
+        this.frameHeight / 2.5,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight + 25
       );
     }
 
