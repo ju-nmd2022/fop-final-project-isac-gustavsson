@@ -10,7 +10,7 @@ let tiles = [];
 
 let enemies = []; // Array to store enemy objects.
 let spawnedEnemies = []; // Array to store enemy spawn positions.
-let maxEnemies = 10;
+let maxEnemies = 20;
 let player;
 
 let inventory;
@@ -29,6 +29,8 @@ let hitLeftSprite;
 let batIdle;
 let batSheet;
 let batSheetAlert;
+
+let spiderSheet;
 
 let currentFrame;
 const frameDelay = 8;
@@ -58,17 +60,19 @@ function preload() {
   stone = loadImage("assets/stonetile.png");
   gold = loadImage("assets/goldtile.png");
 
-  playerIdle = loadImage("assets/playerIdle.png");
-  playerSpriteRight = loadImage("assets/playerRight.png");
-  playerSpriteLeft = loadImage("assets/playerLeft.png");
-  playerSpriteUp = loadImage("assets/playerUp.png");
-  playerSpriteDown = loadImage("assets/playerDown.png");
-  hitDownSprite = loadImage("assets/hitDown.png");
-  hitRightSprite = loadImage("assets/hitRight.png");
-  hitLeftSprite = loadImage("assets/hitLeft.png");
+  playerIdle = loadImage("../assets/playerIdle.png");
+  playerSpriteRight = loadImage("../assets/playerRight.png");
+  playerSpriteLeft = loadImage("../assets/playerLeft.png");
+  playerSpriteUp = loadImage("../assets/playerUp.png");
+  playerSpriteDown = loadImage("../assets/playerDown.png");
+  hitDownSprite = loadImage("../assets/hitDown.png");
+  hitRightSprite = loadImage("../assets/hitRight.png");
+  hitLeftSprite = loadImage("../assets/hitLeft.png");
 
-  batSheet = loadImage("assets/batSheet.png");
-  batSheetAlert = loadImage("assets/batSheetAlert.png");
+  batSheet = loadImage("../assets/batSheet.png");
+  batSheetAlert = loadImage("../assets/batSheetAlert.png");
+
+  spiderSheet = loadImage("../assets/spiderSheet.png");
 }
 
 function setup() {

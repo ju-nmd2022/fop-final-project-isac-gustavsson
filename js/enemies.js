@@ -6,8 +6,8 @@ class Enemy extends Player {
     this.gravity = 0.5;
     this.s = 25;
 
-    this.frameWidth = 150;
-    this.frameHeight = 150;
+    this.frameWidth = 160;
+    this.frameHeight = 160;
     this.currentFrame = 0;
 
     this.isGrounded = false;
@@ -37,14 +37,14 @@ class Enemy extends Player {
 
     if (this.isAlerted) {
       image(
-        batSheetAlert,
+        spiderSheet,
         -10,
-        0,
-        this.frameWidth / 4,
-        this.frameHeight / 4,
+        15,
+        this.frameWidth / 6,
+        this.frameHeight / 6,
         this.currentFrame * this.frameWidth,
         0,
-        this.frameWidth + 10,
+        this.frameWidth,
         this.frameHeight
       );
     }
@@ -115,6 +115,8 @@ class Enemy extends Player {
     }
 
     if (this.currentFrame === 4) {
+      this.currentFrame = 0;
+    } else if (this.isAlerted && this.currentFrame === 2) {
       this.currentFrame = 0;
     }
 
