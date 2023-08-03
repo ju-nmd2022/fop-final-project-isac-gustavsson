@@ -17,7 +17,7 @@ let inventory;
 
 // variables for image-handling
 
-let playerIdleSprite;
+let playerIdle;
 let playerSpriteUp;
 let playerSpriteDown;
 let playerSpriteRight;
@@ -58,7 +58,7 @@ function preload() {
   stone = loadImage("assets/stonetile.png");
   gold = loadImage("assets/goldtile.png");
 
-  playerIdleSprite = loadImage("assets/playerIdle.png");
+  playerIdle = loadImage("assets/playerIdle.png");
   playerSpriteRight = loadImage("assets/playerRight.png");
   playerSpriteLeft = loadImage("assets/playerLeft.png");
   playerSpriteUp = loadImage("assets/playerUp.png");
