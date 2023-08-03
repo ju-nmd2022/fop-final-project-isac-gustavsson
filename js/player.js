@@ -370,7 +370,7 @@ class Player {
       !this.isHittingRight
     ) {
       image(
-        playerIdle,
+        playerIdleSprite,
         0,
         -10,
         this.frameWidth / 3,
