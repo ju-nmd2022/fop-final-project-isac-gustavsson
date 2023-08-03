@@ -17,7 +17,7 @@ let inventory;
 
 // variables for image-handling
 
-let playerIdle;
+let playerIdleSprite;
 let playerSpriteUp;
 let playerSpriteDown;
 let playerSpriteRight;
@@ -60,7 +60,7 @@ function preload() {
   stone = loadImage("assets/stonetile.png");
   gold = loadImage("assets/goldtile.png");
 
-  playerIdle = loadImage("assets/playerIdle.png");
+  playerIdleSprite = loadImage("assets/playerIdle.png");
   playerSpriteRight = loadImage("assets/playerRight.png");
   playerSpriteLeft = loadImage("assets/playerLeft.png");
   playerSpriteUp = loadImage("assets/playerUp.png");
@@ -87,6 +87,18 @@ function setup() {
   tiles = Array.from({ length: tileRows }, () =>
     Array.from({ length: tileCols })
   );
+
+  playerIdleSprite.loadPixels();
+  playerSpriteRight.loadPixels();
+  playerSpriteLeft.loadPixels();
+  playerSpriteUp.loadPixels();
+  playerSpriteDown.loadPixels();
+  hitDownSprite.loadPixels();
+  hitRightSprite.loadPixels();
+  hitLeftSprite.loadPixels();
+  batSheet.loadPixels();
+  batSheetAlert.loadPixels();
+  spiderSheet.loadPixels();
 }
 
 function loadRadius(centerX, centerY, radius) {
