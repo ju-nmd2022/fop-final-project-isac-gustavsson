@@ -54,7 +54,7 @@ class Enemy extends Player {
 
   alertedByPlayer(player) {
     let distance = dist(this.pos.x, this.pos.y, player.pos.x, player.pos.y);
-    let threshold = 150;
+    let threshold = 100;
 
     // Check if the player is within the perimeter to alert enemy.
     if (distance < threshold) {
