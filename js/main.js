@@ -40,7 +40,7 @@ let gravel;
 let stone;
 let gold;
 
-let zoomFactor = 2.8;
+let zoomFactor = 2.5;
 
 // main menu and loading screen //
 
@@ -54,27 +54,6 @@ menuButton.addEventListener("click", () => {
   document.getElementById("loading-screen").style.display = "block";
 });
 
-function preload() {
-  grass = loadImage("./assets/grass2.png");
-  gravel = loadImage("./assets/gravel2.png");
-  stone = loadImage("./assets/stonetile.png");
-  gold = loadImage("./assets/goldtile.png");
-
-  playerIdle = loadImage("./assets/playerIdle.png");
-  playerSpriteRight = loadImage("./assets/playerRight.png");
-  playerSpriteLeft = loadImage("./assets/playerLeft.png");
-  playerSpriteUp = loadImage("./assets/playerUp.png");
-  playerSpriteDown = loadImage("./assets/playerDown.png");
-  hitDownSprite = loadImage("./assets/hitDown.png");
-  hitRightSprite = loadImage("./assets/hitRight.png");
-  hitLeftSprite = loadImage("./assets/hitLeft.png");
-
-  batSheet = loadImage("./assets/batSheet.png");
-  batSheetAlert = loadImage("./assets/batSheetAlert.png");
-
-  spiderSheet = loadImage("./assets/spiderSheet.png");
-}
-
 function setup() {
   const canvas = createCanvas(canvasWidth, canvasHeight);
 
@@ -87,6 +66,25 @@ function setup() {
   tiles = Array.from({ length: tileRows }, () =>
     Array.from({ length: tileCols })
   );
+
+  grass = loadImage("assets/grass.png");
+  gravel = loadImage("assets/gravel.png");
+  stone = loadImage("assets/stonetile.png");
+  gold = loadImage("assets/goldtile.png");
+
+  playerIdle = loadImage("assets/playerIdle.png");
+  playerSpriteRight = loadImage("assets/playerRight.png");
+  playerSpriteLeft = loadImage("assets/playerLeft.png");
+  playerSpriteUp = loadImage("assets/playerUp.png");
+  playerSpriteDown = loadImage("assets/playerDown.png");
+  hitDownSprite = loadImage("assets/hitDown.png");
+  hitRightSprite = loadImage("assets/hitRight.png");
+  hitLeftSprite = loadImage("assets/hitLeft.png");
+
+  batSheet = loadImage("assets/batSheet.png");
+  batSheetAlert = loadImage("assets/batSheetAlert.png");
+
+  spiderSheet = loadImage("assets/spiderSheet.png");
 }
 
 function loadRadius(centerX, centerY, radius) {
@@ -208,7 +206,7 @@ function loadRadius(centerX, centerY, radius) {
           !tileType.isDestroyed
         ) {
           spawnedEnemies.push({ x, y });
-          enemies.push(new Enemy(x, y));
+          enemies.push(new Spider(x, y));
         }
       }
     }
@@ -289,19 +287,6 @@ function keyPressed() {
   // SECTION 3 - RESOURCES //
 
   return false;
-}
-
-function assetsAreLoaded() {
-  // Check if your game assets are loaded here
-  // For example, you could check if a specific image or audio file has been loaded
-  // You can use preloading techniques or check the status of individual assets
-  // Return true if all assets are loaded, otherwise return false
-  // Example implementation:
-  // if (gameImage.isLoaded && gameAudio.isLoaded) {
-  //   return true;
-  // } else {
-  //   return false;
-  // }
 }
 
 function draw() {

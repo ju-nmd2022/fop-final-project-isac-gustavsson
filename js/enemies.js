@@ -116,10 +116,7 @@ class Enemy extends Player {
 
     if (this.currentFrame === 4) {
       this.currentFrame = 0;
-    } else if (this.isAlerted && this.currentFrame === 2) {
-      this.currentFrame = 0;
     }
-
     return false;
   }
 
@@ -246,5 +243,45 @@ class Enemy extends Player {
     } else this.hitsTop = false;
 
     return false;
+  }
+}
+
+class Spider extends Enemy {
+  constructor(x, y) {
+    super(x, y);
+    this.pos = createVector(x, y);
+    this.vel = createVector(0, 0);
+    this.s = 25;
+  }
+
+  animate() {
+    push();
+    translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2 - 15);
+    image(
+      spiderSheet,
+      0,
+      22,
+      this.frameWidth / 8,
+      this.frameHeight / 8,
+      this.currentFrame * this.frameWidth,
+      0,
+      this.frameWidth,
+      this.frameHeight
+    );
+
+    pop();
+  }
+
+  update(tile) {
+    this.vel.y += this.gravity;
+    this.pos.add(this.vel);
+
+    if (this.isGrounded) {
+      this.pos.x += 1;
+    } else this.pos.x = 0;
+
+    if (this.currentFrame === 2) {
+      this.currentFrame = 0;
+    }
   }
 }

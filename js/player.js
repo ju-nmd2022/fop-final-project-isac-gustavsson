@@ -29,6 +29,8 @@ class Player {
 
     this.isLookingDown = false;
     this.isHittingDown = false;
+
+    this.playerIdle = this.playerIdle;
   }
 
   destroyTile(tiles) {
