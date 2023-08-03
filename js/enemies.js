@@ -15,6 +15,10 @@ class Enemy extends Player {
     this.isColliding = false;
     this.isJumping = false;
     this.hasSpawned = false;
+
+    this.batSheet = loadImage("assets/batSheet.png");
+    this.batSheetAlert = loadImage("assets/batSheetAlert.png");
+    this.spiderSheet = loadImage("assets/spiderSheet.png");
   }
 
   animate() {
@@ -23,7 +27,7 @@ class Enemy extends Player {
 
     if (!this.isAlerted) {
       image(
-        batSheet,
+        this.batSheet,
         -10,
         0,
         this.frameWidth / 5,
@@ -37,7 +41,7 @@ class Enemy extends Player {
 
     if (this.isAlerted) {
       image(
-        spiderSheet,
+        this.batSheetAlert,
         0,
         22,
         this.frameWidth / 8,
@@ -59,16 +63,13 @@ class Enemy extends Player {
     // Check if the player is within the perimeter to alert enemy.
     if (distance < threshold) {
       this.isAlerted = true;
-      this.color = "yellow";
     } else if (distance > threshold) {
       this.isAlerted = false;
-      this.color = "#12F8E8";
     }
 
     // check if player and enemy are colliding.
     if (distance < this.s / 2 + player.s / 2) {
       this.isColliding = true;
-      this.color = "#EA3546";
     } else this.isColliding = false;
   }
 
@@ -258,7 +259,7 @@ class Spider extends Enemy {
     push();
     translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2 - 15);
     image(
-      spiderSheet,
+      this.spiderSheet,
       0,
       22,
       this.frameWidth / 8,

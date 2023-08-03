@@ -7,6 +7,11 @@ class Tile {
     this.resources = resources;
     this.isDestroyed = false;
     this.isNotATile = false;
+
+    this.grass = loadImage("assets/grass.png");
+    this.gravel = loadImage("assets/gravel.png");
+    this.stone = loadImage("assets/stonetile.png");
+    this.gold = loadImage("assets/goldtile.png");
   }
 }
 
@@ -34,7 +39,6 @@ class gt0 extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
     this.maxHits = 2;
-    this.grass = grass;
   }
 
   animate(inventory) {
@@ -51,7 +55,6 @@ class ct extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
     this.maxHits = 2;
-    this.gravel = gravel;
   }
 
   animate(inventory) {
@@ -69,7 +72,6 @@ class st extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
     this.maxHits = 3;
-    this.stone = stone;
   }
 
   animate(inventory) {
@@ -98,7 +100,6 @@ class gt1 extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
     this.maxHits = 8;
-    this.gold = gold;
   }
 
   animate(inventory) {

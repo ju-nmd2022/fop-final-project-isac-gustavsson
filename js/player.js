@@ -19,16 +19,25 @@ class Player {
     this.frameHeight = 100;
     this.currentFrame = 0;
 
+    // booleans for player animation.
+
     this.isLookingLeft = false;
-    this.isHittingLeft = false;
-
     this.isLookingRight = false;
+    this.isHittingLeft = false;
     this.isHittingRight = false;
-
     this.isLookingUp = false;
-
     this.isLookingDown = false;
     this.isHittingDown = false;
+
+    // images for player animation.
+    this.playerIdle = loadImage("assets/playerIdle.png");
+    this.playerSpriteRight = loadImage("assets/playerRight.png");
+    this.playerSpriteLeft = loadImage("assets/playerLeft.png");
+    this.playerSpriteUp = loadImage("assets/playerUp.png");
+    this.playerSpriteDown = loadImage("assets/playerDown.png");
+    this.hitDownSprite = loadImage("assets/hitDown.png");
+    this.hitRightSprite = loadImage("assets/hitRight.png");
+    this.hitLeftSprite = loadImage("assets/hitLeft.png");
   }
 
   destroyTile(tiles) {
@@ -370,7 +379,7 @@ class Player {
       !this.isHittingRight
     ) {
       image(
-        playerIdle,
+        this.playerIdle,
         0,
         -10,
         this.frameWidth / 3,
@@ -384,7 +393,7 @@ class Player {
 
     if (this.isMovingRight) {
       image(
-        playerSpriteRight,
+        this.playerSpriteRight,
         0,
         -10,
         this.frameWidth / 3,
@@ -398,7 +407,7 @@ class Player {
 
     if (this.isMovingLeft) {
       image(
-        playerSpriteLeft,
+        this.playerSpriteLeft,
         0,
         -10,
         this.frameWidth / 3,
@@ -418,7 +427,7 @@ class Player {
       !this.isLookingDown
     ) {
       image(
-        playerSpriteLeft,
+        this.playerSpriteLeft,
         0,
         -10,
         this.frameWidth / 3,
@@ -439,7 +448,7 @@ class Player {
       !this.isLookingDown
     ) {
       image(
-        playerSpriteRight,
+        this.playerSpriteRight,
         0,
         -10,
         this.frameWidth / 3,
@@ -453,7 +462,7 @@ class Player {
 
     if (this.isLookingUp && !this.isMovingLeft && !this.isMovingRight) {
       image(
-        playerSpriteUp,
+        this.playerSpriteUp,
         -4.5,
         -17,
         this.frameWidth / 2,
@@ -472,7 +481,7 @@ class Player {
       !this.isHittingDown
     ) {
       image(
-        playerSpriteDown,
+        this.playerSpriteDown,
         0,
         -10,
         this.frameWidth / 3,
@@ -486,7 +495,7 @@ class Player {
 
     if (this.isHittingDown) {
       image(
-        hitDownSprite,
+        this.hitDownSprite,
         -18,
         -25,
         this.frameWidth / 2,
@@ -500,7 +509,7 @@ class Player {
 
     if (!this.isMovingRight && !this.isMovingLeft && this.isHittingRight) {
       image(
-        hitRightSprite,
+        this.hitRightSprite,
         2,
         -16,
         this.frameWidth / 3,
@@ -514,7 +523,7 @@ class Player {
 
     if (!this.isMovingLeft && !this.isMovingRight && this.isHittingLeft) {
       image(
-        hitLeftSprite,
+        this.hitLeftSprite,
         2,
         -16,
         this.frameWidth / 3,
