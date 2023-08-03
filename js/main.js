@@ -60,7 +60,7 @@ function preload() {
   stone = loadImage("assets/stonetile.png");
   gold = loadImage("assets/goldtile.png");
 
-  playerIdle = loadImage("./assets/playerIdle.png");
+  playerIdle = loadImage("assets/playerIdle.png");
   playerSpriteRight = loadImage("assets/playerRight.png");
   playerSpriteLeft = loadImage("assets/playerLeft.png");
   playerSpriteUp = loadImage("assets/playerUp.png");
@@ -72,7 +72,7 @@ function preload() {
   batSheet = loadImage("assets/batSheet.png");
   batSheetAlert = loadImage("assets/batSheetAlert.png");
 
-  spiderSheet = loadImage("./assets/spiderSheet.png");
+  spiderSheet = loadImage("assets/spiderSheet.png");
 }
 
 function setup() {

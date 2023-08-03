@@ -379,8 +379,8 @@ class Player {
         this.frameHeight / 3,
         0,
         0,
-        this.frameWidth,
-        this.frameHeight
+        this.frameWidth + 50,
+        this.frameHeight + 50
       );
     }
 
