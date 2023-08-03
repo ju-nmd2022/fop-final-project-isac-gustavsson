@@ -60,19 +60,19 @@ function preload() {
   stone = loadImage("assets/stonetile.png");
   gold = loadImage("assets/goldtile.png");
 
-  playerIdle = loadImage("../assets/playerIdle.png");
-  playerSpriteRight = loadImage("../assets/playerRight.png");
-  playerSpriteLeft = loadImage("../assets/playerLeft.png");
-  playerSpriteUp = loadImage("../assets/playerUp.png");
-  playerSpriteDown = loadImage("../assets/playerDown.png");
-  hitDownSprite = loadImage("../assets/hitDown.png");
-  hitRightSprite = loadImage("../assets/hitRight.png");
-  hitLeftSprite = loadImage("../assets/hitLeft.png");
+  playerIdle = loadImage("assets/playerIdle.png");
+  playerSpriteRight = loadImage("assets/playerRight.png");
+  playerSpriteLeft = loadImage("assets/playerLeft.png");
+  playerSpriteUp = loadImage("assets/playerUp.png");
+  playerSpriteDown = loadImage("assets/playerDown.png");
+  hitDownSprite = loadImage("assets/hitDown.png");
+  hitRightSprite = loadImage("assets/hitRight.png");
+  hitLeftSprite = loadImage("assets/hitLeft.png");
 
-  batSheet = loadImage("../assets/batSheet.png");
-  batSheetAlert = loadImage("../assets/batSheetAlert.png");
+  batSheet = loadImage("assets/batSheet.png");
+  batSheetAlert = loadImage("assets/batSheetAlert.png");
 
-  spiderSheet = loadImage("../assets/spiderSheet.png");
+  spiderSheet = loadImage("assets/spiderSheet.png");
 }
 
 function setup() {
