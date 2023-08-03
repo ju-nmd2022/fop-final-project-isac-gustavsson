@@ -29,8 +29,6 @@ class Player {
 
     this.isLookingDown = false;
     this.isHittingDown = false;
-
-    this.playerIdle = playerIdle;
   }
 
   destroyTile(tiles) {
@@ -372,7 +370,7 @@ class Player {
       !this.isHittingRight
     ) {
       image(
-        this.playerIdle,
+        playerIdle,
         0,
         -10,
         this.frameWidth / 3,
