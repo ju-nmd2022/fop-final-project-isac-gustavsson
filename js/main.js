@@ -17,7 +17,7 @@ let inventory;
 
 // variables for image-handling
 
-let PlayerIdle;
+let playerIdle;
 let playerSpriteUp;
 let playerSpriteDown;
 let playerSpriteRight;
@@ -30,7 +30,7 @@ let batIdle;
 let batSheet;
 let batSheetAlert;
 
-let SpiderSheet;
+let spiderSheet;
 
 let currentFrame;
 const frameDelay = 8;
@@ -60,7 +60,7 @@ function preload() {
   stone = loadImage("assets/stonetile.png");
   gold = loadImage("assets/goldtile.png");
 
-  PlayerIdle = loadImage("assets/PlayerIdle.png");
+  playerIdle = loadImage("assets/playerIdle.png");
   playerSpriteRight = loadImage("assets/playerRight.png");
   playerSpriteLeft = loadImage("assets/playerLeft.png");
   playerSpriteUp = loadImage("assets/playerUp.png");
@@ -72,7 +72,7 @@ function preload() {
   batSheet = loadImage("assets/batSheet.png");
   batSheetAlert = loadImage("assets/batSheetAlert.png");
 
-  SpiderSheet = loadImage("assets/SpiderSheet.png");
+  spiderSheet = loadImage("assets/spiderSheet.png");
 }
 
 function setup() {
