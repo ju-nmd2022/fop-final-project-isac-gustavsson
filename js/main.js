@@ -52,7 +52,19 @@ menuButton.addEventListener("click", () => {
   document.getElementById("loading-screen").style.display = "block";
 });
 
-function preload() {
+function setup() {
+  const canvas = createCanvas(canvasWidth, canvasHeight);
+
+  player = new Player(centerX, centerY);
+  inventory = new Inventory();
+
+  tileCols = Math.ceil(centerX * 20);
+  tileRows = Math.ceil(centerY * 100);
+
+  tiles = Array.from({ length: tileRows }, () =>
+    Array.from({ length: tileCols })
+  );
+
   grass = loadImage("assets/grass.png");
   gravel = loadImage("assets/gravel.png");
   stone = loadImage("assets/stonetile.png");
@@ -71,20 +83,6 @@ function preload() {
   batSheetAlert = loadImage("assets/batSheetAlert.png");
 
   spiderSheet = loadImage("assets/spiderSheet.png");
-}
-
-function setup() {
-  const canvas = createCanvas(canvasWidth, canvasHeight);
-
-  player = new Player(centerX, centerY);
-  inventory = new Inventory();
-
-  tileCols = Math.ceil(centerX * 20);
-  tileRows = Math.ceil(centerY * 100);
-
-  tiles = Array.from({ length: tileRows }, () =>
-    Array.from({ length: tileCols })
-  );
 }
 
 function loadRadius(centerX, centerY, radius) {
