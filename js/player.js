@@ -30,14 +30,14 @@ class Player {
     this.isHittingDown = false;
 
     // images for player animation.
-    this.playerIdle = loadImage("assets/playerIdle.png");
-    this.playerSpriteRight = loadImage("assets/playerRight.png");
-    this.playerSpriteLeft = loadImage("assets/playerLeft.png");
-    this.playerSpriteUp = loadImage("assets/playerUp.png");
-    this.playerSpriteDown = loadImage("assets/playerDown.png");
-    this.hitDownSprite = loadImage("assets/hitDown.png");
-    this.hitRightSprite = loadImage("assets/hitRight.png");
-    this.hitLeftSprite = loadImage("assets/hitLeft.png");
+    this.playerIdle = playerIdle;
+    this.playerSpriteRight = playerSpriteRight;
+    this.playerSpriteLeft = playerSpriteLeft;
+    this.playerSpriteUp = playerSpriteUp;
+    this.playerSpriteDown = playerSpriteDown;
+    this.hitDownSprite = hitDownSprite;
+    this.hitRightSprite = hitRightSprite;
+    this.hitLeftSprite = hitLeftSprite;
   }
 
   destroyTile(tiles) {

@@ -16,9 +16,9 @@ class Enemy extends Player {
     this.isJumping = false;
     this.hasSpawned = false;
 
-    this.batSheet = loadImage("assets/batSheet.png");
-    this.batSheetAlert = loadImage("assets/batSheetAlert.png");
-    this.spiderSheet = loadImage("assets/spiderSheet.png");
+    this.batSheet = batSheet;
+    this.batSheetAlert = batSheetAlert;
+    this.spiderSheet = spiderSheet;
   }
 
   animate() {
