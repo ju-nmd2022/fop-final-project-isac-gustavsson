@@ -25,11 +25,9 @@ let playerSpriteLeft;
 let hitDownSprite;
 let hitRightSprite;
 let hitLeftSprite;
-
 let batIdle;
 let batSheet;
 let batSheetAlert;
-
 let spiderSheet;
 
 let currentFrame;
@@ -87,18 +85,6 @@ function setup() {
   tiles = Array.from({ length: tileRows }, () =>
     Array.from({ length: tileCols })
   );
-
-  playerIdleSprite.loadPixels();
-  playerSpriteRight.loadPixels();
-  playerSpriteLeft.loadPixels();
-  playerSpriteUp.loadPixels();
-  playerSpriteDown.loadPixels();
-  hitDownSprite.loadPixels();
-  hitRightSprite.loadPixels();
-  hitLeftSprite.loadPixels();
-  batSheet.loadPixels();
-  batSheetAlert.loadPixels();
-  spiderSheet.loadPixels();
 }
 
 function loadRadius(centerX, centerY, radius) {
