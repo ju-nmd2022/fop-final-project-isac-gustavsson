@@ -14,6 +14,7 @@ class Player {
     this.isMovingUp = false;
     this.isMovingDown = false;
     this.prevPosY = this.pos.y;
+    this.isCollidingWithEnemy = false;
 
     this.frameWidth = 100;
     this.frameHeight = 100;
@@ -239,12 +240,12 @@ class Player {
 
   move() {
     if (keyIsDown(65)) {
-      this.pos.x -= 3;
+      this.pos.x -= 4;
       this.isMovingLeft = true;
     } else this.isMovingLeft = false;
 
     if (keyIsDown(68)) {
-      this.pos.x += 3;
+      this.pos.x += 4;
       this.isMovingRight = true;
     } else this.isMovingRight = false;
 

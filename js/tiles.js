@@ -33,7 +33,7 @@ class Emptile extends Tile {
 class gt0 extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
-    this.maxHits = 2;
+    this.maxHits = 1;
     this.grass = grass;
   }
 
@@ -50,7 +50,7 @@ class gt0 extends Tile {
 class ct extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
-    this.maxHits = 2;
+    this.maxHits = 1;
     this.gravel = gravel;
   }
 
@@ -68,7 +68,7 @@ class ct extends Tile {
 class st extends Tile {
   constructor(x, y, s) {
     super(x, y, s);
-    this.maxHits = 3;
+    this.maxHits = 1;
     this.stone = stone;
   }
 

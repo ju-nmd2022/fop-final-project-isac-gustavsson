@@ -12,48 +12,20 @@ class Enemy extends Player {
 
     this.isGrounded = false;
     this.isAlerted = false;
-    this.isColliding = false;
+    this.isCollidingWithEnemy = false;
     this.isJumping = false;
-    this.hasSpawned = false;
+
+    this.hitsRight = false;
+    this.hitsLeft = false;
+
+    this.isMovingLeft = false;
+    this.isMovingRight = false;
 
     this.batSheet = batSheet;
     this.batSheetAlert = batSheetAlert;
     this.spiderSheet = spiderSheet;
-  }
 
-  animate() {
-    push();
-    translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2 - 15);
-
-    if (!this.isAlerted) {
-      image(
-        this.batSheet,
-        -10,
-        0,
-        this.frameWidth / 5,
-        this.frameHeight / 5,
-        this.currentFrame * this.frameWidth,
-        0,
-        this.frameWidth + 10,
-        this.frameHeight
-      );
-    }
-
-    if (this.isAlerted) {
-      image(
-        this.batSheetAlert,
-        0,
-        22,
-        this.frameWidth / 8,
-        this.frameHeight / 8,
-        this.currentFrame * this.frameWidth,
-        0,
-        this.frameWidth,
-        this.frameHeight
-      );
-    }
-
-    pop();
+    this.noiseValue = 0;
   }
 
   alertedByPlayer(player) {
@@ -69,8 +41,8 @@ class Enemy extends Player {
 
     // check if player and enemy are colliding.
     if (distance < this.s / 2 + player.s / 2) {
-      this.isColliding = true;
-    } else this.isColliding = false;
+      player.isCollidingWithEnemy = true;
+    } else player.isCollidingWithEnemy = false;
   }
 
   jump() {
@@ -78,7 +50,7 @@ class Enemy extends Player {
 
     if (this.isAlerted) {
       // Adjust the jump velocity to control jump height
-      this.vel.y = -8;
+      this.vel.y = -9;
 
       // set isJumping to true while jumping.
       this.isJumping = true;
@@ -95,9 +67,21 @@ class Enemy extends Player {
     return false;
   }
 
-  update(tile) {
+  move() {
+    if (this.isAlerted && this.isGrounded) {
+      if (player.pos.x > this.pos.x) {
+        this.pos.x += 2;
+      } else if (player.pos.x < this.pos.x) {
+        this.pos.x -= 2;
+      }
+    }
+  }
+
+  update() {
     this.vel.y += this.gravity;
     this.pos.add(this.vel);
+
+    this.noiseValue = noise(this.pos.x / 100, this.pos.y / 100);
 
     if (
       this.currentFrame < 4 &&
@@ -107,17 +91,12 @@ class Enemy extends Player {
       this.currentFrame++;
     }
 
-    if (this.isAlerted && this.isGrounded) {
-      if (player.pos.x > this.pos.x) {
-        this.pos.x += 1;
-      } else if (player.pos.x < this.pos.x) {
-        this.pos.x -= 1;
-      }
-    }
-
-    if (this.currentFrame === 4) {
+    if (this instanceof Enemy && this.currentFrame === 4) {
+      this.currentFrame = 0;
+    } else if (this instanceof Spider && this.currentFrame === 2) {
       this.currentFrame = 0;
     }
+
     return false;
   }
 
@@ -128,13 +107,6 @@ class Enemy extends Player {
 
     // Calculate player and tile boundaries
 
-    const enemyBot = this.pos.y + this.s;
-    const enemyRight = this.pos.x + this.s;
-
-    const tileTop = tile.pos.y;
-    const tileBot = tile.pos.y + tile.s;
-    const tileRight = tile.pos.x + tile.s;
-
     const tileCenterX = tile.pos.x + tile.s / 2;
     const tileCenterY = tile.pos.y + tile.s / 2;
 
@@ -142,44 +114,44 @@ class Enemy extends Player {
 
     const hitFromBot =
       this.vel.y >= 0 &&
-      enemyBot >= tileTop &&
-      this.pos.y < tileTop &&
-      enemyRight > tile.pos.x &&
-      this.pos.x < tileRight;
+      this.pos.y + this.s >= tile.pos.y &&
+      this.pos.y < tile.pos.y &&
+      this.pos.x + this.s > tile.pos.x &&
+      this.pos.x < tile.pos.x + tile.s;
 
     const hitFromTop =
       this.vel.y <= 0 &&
-      this.pos.y <= tileBot &&
-      enemyBot >= tileBot &&
-      enemyRight > tile.pos.x + 2 &&
-      this.pos.x < tileRight;
+      this.pos.y <= tile.pos.y + tile.s &&
+      this.pos.y + this.s >= tile.pos.y + tile.s &&
+      this.pos.x + this.s > tile.pos.x + 2 &&
+      this.pos.x < tile.pos.x + tile.s;
 
     const hitFromRight =
       this.vel.x >= 0 &&
-      this.pos.x <= tileRight &&
-      enemyRight > tileRight + 1 &&
-      enemyBot > tileTop &&
-      this.pos.y < tileBot;
+      this.pos.x <= tile.pos.x + tile.s &&
+      this.pos.x + this.s > tile.pos.x + tile.s + 1 &&
+      this.pos.y + this.s > tile.pos.y &&
+      this.pos.y < tile.pos.y + tile.s;
 
     const hitFromLeft =
       this.vel.x <= 0 &&
-      enemyRight > tile.pos.x &&
+      this.pos.x + this.s > tile.pos.x &&
       this.pos.x < tile.pos.x &&
-      enemyBot > tileTop &&
-      this.pos.y < tileBot;
+      this.pos.y + this.s > tile.pos.y &&
+      this.pos.y < tile.pos.y + tile.s;
 
     const threshold = 25;
 
     const isTileAbove =
-      tileBot <= tileTop &&
-      tileTop - tileBot <= threshold &&
-      enemyRight > tile.pos.x &&
-      this.pos.x < tileRight;
+      tile.pos.y + tile.s <= tile.pos.y &&
+      tile.pos.y - tile.pos.y + tile.s <= threshold &&
+      this.pos.x + this.s > tile.pos.x &&
+      this.pos.x < tile.pos.x + tile.s;
 
     // Determine collisions based on direction
 
     if (hitFromBot) {
-      this.pos.y = tileTop - this.s;
+      this.pos.y = tile.pos.y - this.s;
       this.vel.y = 0;
       this.isGrounded = true;
       this.isJumping = false;
@@ -188,7 +160,7 @@ class Enemy extends Player {
     }
 
     if (hitFromTop) {
-      this.pos.y = tileBot;
+      this.pos.y = tile.pos.y + tile.s;
       this.vel.y = 0;
       this.hitsTop = false;
       return true;
@@ -197,44 +169,46 @@ class Enemy extends Player {
     if (
       hitFromRight &&
       this.isGrounded &&
-      this.isAlerted &&
-      enemyBot > tileCenterY &&
-      this.pos.x + this.s > player.pos.x + player.s
+      this.pos.y + this.s > tileCenterY &&
+      this.pos.x + this.s > tile.pos.x + tile.s
     ) {
-      this.pos.x = tileRight;
+      this.hitsRight = true;
+      this.pos.x = tile.pos.x + tile.s;
       this.vel.x = 0;
       this.jump();
 
       return true;
     }
 
-    if (this.isJumping && hitFromRight && enemyBot > tileTop) {
+    if (this.isJumping && hitFromRight && this.pos.y + this.s >= tile.pos.y) {
       this.pos.x -= 1;
       this.vel.x = 0;
       this.isJumping = false;
+      console.log("hit");
 
       return true;
     }
 
     if (
-      !isTileAbove &&
       hitFromLeft &&
       this.isGrounded &&
-      this.isAlerted &&
-      enemyBot > tileCenterY &&
-      this.pos.x + this.s < player.pos.x + player.s
+      this.pos.y + this.s > tileCenterY &&
+      this.pos.x + this.s < tile.pos.x + tile.s
     ) {
-      this.pos.x = tile.pos.x - this.s;
+      this.hitsLeft = true;
+      this.pos.x = tile.pos.x - this.frameWidth / 8;
       this.vel.x = 0;
+
       this.jump();
+
       return true;
     }
 
-    if (this.isJumping && hitFromLeft && enemyBot > tileTop) {
+    if (hitFromLeft && this.isJumping && this.pos.y + this.s > tile.pos.y) {
       this.pos.x += 1;
       this.vel.x = 0;
-
       this.isJumping = false;
+
       return true;
     }
 
@@ -244,6 +218,52 @@ class Enemy extends Player {
     } else this.hitsTop = false;
 
     return false;
+  }
+}
+
+// Enemy Skins
+
+class Bat extends Enemy {
+  constructor(x, y) {
+    super(x, y);
+    this.pos = createVector(x, y);
+    this.vel = createVector(0, 0);
+    this.s = 25;
+  }
+
+  animate() {
+    push();
+    translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2 - 15);
+
+    if (!this.isAlerted) {
+      image(
+        this.batSheet,
+        0,
+        0,
+        this.frameWidth / 5,
+        this.frameHeight / 5,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    }
+
+    if (this.isAlerted) {
+      image(
+        this.batSheetAlert,
+        -4,
+        0,
+        this.frameWidth / 5,
+        this.frameHeight / 5,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    }
+
+    pop();
   }
 }
 
@@ -258,6 +278,7 @@ class Spider extends Enemy {
   animate() {
     push();
     translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2 - 15);
+
     image(
       this.spiderSheet,
       0,
@@ -271,18 +292,5 @@ class Spider extends Enemy {
     );
 
     pop();
-  }
-
-  update(tile) {
-    this.vel.y += this.gravity;
-    this.pos.add(this.vel);
-
-    if (this.isGrounded) {
-      this.pos.x += 1;
-    } else this.pos.x = 0;
-
-    if (this.currentFrame === 2) {
-      this.currentFrame = 0;
-    }
   }
 }

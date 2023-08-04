@@ -9,7 +9,6 @@ let menuButtonIsClicked = false;
 let tiles = [];
 
 let enemies = []; // Array to store enemy objects.
-let spawnedEnemies = []; // Array to store enemy spawn positions.
 let maxEnemies = 20;
 let player;
 
@@ -38,7 +37,7 @@ let gravel;
 let stone;
 let gold;
 
-let zoomFactor = 2.5;
+let zoomFactor = 1.8;
 
 // main menu and loading screen //
 
@@ -77,10 +76,11 @@ function setup() {
   const canvas = createCanvas(canvasWidth, canvasHeight);
 
   player = new Player(centerX, centerY);
+
   inventory = new Inventory();
 
-  tileCols = Math.ceil(centerX * 20);
-  tileRows = Math.ceil(centerY * 100);
+  tileCols = Math.ceil(centerX);
+  tileRows = Math.ceil(centerY);
 
   tiles = Array.from({ length: tileRows }, () =>
     Array.from({ length: tileCols })
@@ -143,18 +143,86 @@ function loadRadius(centerX, centerY, radius) {
   }
 
   if (player.vel.y > 0) {
-    // Remove tiles above the radius when the player is moving downwards (y++)
-    const removeStartRow = Math.max(1, Math.floor((centerY - radius) / 50));
-    const removeEndRow = Math.max(
-      0,
-      Math.floor((centerY - radius / 4) / 50) - 1
-    );
+    // // Remove tiles above the radius when the player is moving downwards (y++)
+    // const removeStartRow = Math.max(1, Math.floor((centerY - radius) / 50));
+    // const removeEndRow = Math.max(
+    //   0,
+    //   Math.floor((centerY - radius / 4) / 50) - 1
+    // );
+    // for (let i = removeStartRow; i <= removeEndRow; i++) {
+    //   for (let j = startCol; j <= endCol; j++) {
+    //     tiles[i][j] = null;
+    //   }
+    // }
 
-    for (let i = removeStartRow; i <= removeEndRow; i++) {
+    // Refactor the existing code to spawn enemies based on player.vel.y > 0
+    const spawnStartRow = Math.ceil((centerY + radius) / 50);
+    const spawnEndRow = Math.floor((centerY + radius + player.vel.y) / 50);
+
+    for (let i = spawnStartRow; i <= spawnEndRow; i++) {
+      const noiseValue = noise(player.pos.x / 100, player.pos.y / 100); // Generate noise value for each row
+
       for (let j = startCol; j <= endCol; j++) {
-        tiles[i][j] = null;
+        if (tiles[i][startCol] instanceof Emptile) {
+          // Determine the number of random columns to spawn enemies on
+          const numEnemiesToSpawn = Math.floor(
+            Math.random() * (endCol - startCol + 1)
+          );
+
+          for (let k = 0; k < numEnemiesToSpawn; k++) {
+            // Generate a random column index within the valid range
+            const randomCol =
+              Math.floor(Math.random() * (endCol - startCol + 1)) + startCol;
+
+            // Check if the tile type at the random column is Emptile
+            if (tiles[i][randomCol] instanceof Emptile) {
+              // Spawn an enemy on this tile position
+              const x = randomCol * 50;
+              const y = i * 50;
+              let newEnemy = new Spider(x, y); // Spawn an enemy at (x, y)
+              const minDistance = 200; // Minimum distance between enemies
+
+              if (noiseValue > 0.5) {
+                newEnemy = new Spider(x, y); // Spawn an enemy at (x, y)
+              } else if (noiseValue < 0.5) {
+                newEnemy = new Bat(x, y); // Spawn an enemy at (x, y)
+              }
+
+              // Check the distance between the new enemy and existing enemies
+              const isFarEnough = enemies.every((enemy) => {
+                const distance = dist(
+                  newEnemy.pos.x,
+                  newEnemy.pos.y,
+                  enemy.pos.x,
+                  enemy.pos.y
+                );
+                return distance >= minDistance;
+              });
+
+              if (isFarEnough) {
+                // Spawn the enemy if it is far enough from existing enemies
+                enemies.push(newEnemy);
+                console.log(enemies);
+              }
+            }
+          }
+        }
       }
     }
+
+    // Define the desired radius for removing enemies
+    const removeRadius = 2000;
+
+    // Remove enemies outside the load radius
+    enemies = enemies.filter((enemy) => {
+      const distance = dist(
+        enemy.pos.x,
+        enemy.pos.y,
+        player.pos.x,
+        player.pos.y
+      );
+      return distance <= removeRadius;
+    });
   } else if (player.vel.y < 0) {
     // Remove tiles below the radius when the player is moving upwards (y--)
     removeStartRow = Math.min(
@@ -162,7 +230,6 @@ function loadRadius(centerX, centerY, radius) {
       Math.ceil((centerY + radius) / 50) + 1
     );
     removeEndRow = tiles.length - 1;
-
     for (let i = removeStartRow; i <= removeEndRow; i++) {
       for (let j = startCol; j <= endCol; j++) {
         tiles[i][j] = null;
@@ -196,17 +263,6 @@ function loadRadius(centerX, centerY, radius) {
 
         if (i >= 0 && tileType !== "" && !tileType.isDestroyed) {
           tiles[i][j] = new tileType(x, y);
-        }
-
-        if (
-          i > 0 &&
-          tileType === Emptile &&
-          spawnedEnemies.length < maxEnemies &&
-          noiseValue < 0.4 &&
-          !tileType.isDestroyed
-        ) {
-          spawnedEnemies.push({ x, y });
-          enemies.push(new Spider(x, y));
         }
       }
     }
@@ -291,9 +347,9 @@ function keyPressed() {
 
 function draw() {
   clear();
-  background("#222E4F");
+  background("#11182F");
 
-  if (player.pos.y >= 100) {
+  if (player.pos.y >= 300) {
     background(0, 0, 0, 150);
   }
 
@@ -313,7 +369,6 @@ function draw() {
           //  Update enemy / tile object relations.
 
           if (enemy.hits(tile)) {
-            enemy.isGrounded = true;
           }
         }
       }
@@ -328,11 +383,12 @@ function draw() {
 
   for (const enemy of enemies) {
     enemy.animate();
+    enemy.move();
     enemy.update();
     enemy.alertedByPlayer(player);
   }
 
-  loadRadius(player.pos.x, player.pos.y, 500);
+  loadRadius(player.pos.x, player.pos.y, 400);
 
   // Update the enemy functions
 
