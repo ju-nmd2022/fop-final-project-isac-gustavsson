@@ -3,6 +3,8 @@ class Inventory {
     this.capacity = 72;
     this.isOpen = false;
     this.resources = [];
+
+    this.infoHelper = infoHelper;
   }
 
   addResources(resources) {
@@ -19,37 +21,18 @@ class Inventory {
 
   Open() {
     push();
-    noStroke();
-    fill("#4B3B40");
-    rect(canvasWidth / 2 - 300, canvasHeight / 2 - 350, 600);
+    image(this.infoHelper, canvasWidth / 2 - 350, canvasHeight / 2 - 400, 700);
     pop();
-
-    const gridSize = 70;
-    const startX = canvasWidth / 2 - 875;
-    const startY = canvasHeight / 2 - 500;
-
-    for (let i = 0; i < this.resources.length; i++) {
-      const resource = this.resources[i];
-      const row = Math.floor(i / 8);
-      const col = i % 8;
-
-      const xPos = startX + col * gridSize;
-      const yPos = startY + row * gridSize;
-
-      if (row < 8 && col < 8) {
-        push();
-        translate(xPos, yPos);
-        resource.animate();
-        pop();
-      } else return false;
-    }
   }
 
   Closed() {
     push();
+    translate(canvasWidth / 2, canvasHeight / 2);
     noStroke();
-    fill("#4B3B40");
-    rect(canvasWidth / 2 + 800, canvasHeight / 2 - 350, 50);
+    fill("#eb5e55");
+    textSize(20);
+    textFont("Bungee");
+    text("Press 'P' for information", 375, -415);
     pop();
   }
 }

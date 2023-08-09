@@ -14,7 +14,11 @@ let player;
 
 let inventory;
 
+let startScreen = true;
+
 // variables for image-handling
+
+let infoHelper;
 
 let playerIdle;
 let playerSpriteUp;
@@ -28,6 +32,7 @@ let batIdle;
 let batSheet;
 let batSheetAlert;
 let spiderSheet;
+let spiderSheetLeft;
 
 let currentFrame;
 const frameDelay = 8;
@@ -42,13 +47,14 @@ let zoomFactor = 1.8;
 // main menu and loading screen //
 
 let menuButton = document.getElementById("start-button");
-document.getElementById("main-menu").style.display = "none";
+document.getElementById("main-menu").style.display = "block";
 document.getElementById("loading-screen").style.display = "none";
 
 menuButton.addEventListener("click", () => {
   menuButtonIsClicked = true;
+  startScreen = false;
   document.getElementById("main-menu").style.display = "none";
-  document.getElementById("loading-screen").style.display = "block";
+  document.getElementById("loading-screen").style.display = "none";
 });
 
 function preload() {
@@ -57,6 +63,7 @@ function preload() {
   stone = loadImage("assets/stonetile.png");
   gold = loadImage("assets/goldtile.png");
 
+  infoHelper = loadImage("assets/help.png");
   playerIdle = loadImage("assets/playerIdle.png");
   playerSpriteRight = loadImage("assets/playerRight.png");
   playerSpriteLeft = loadImage("assets/playerLeft.png");
@@ -68,8 +75,10 @@ function preload() {
 
   batSheet = loadImage("assets/batSheet.png");
   batSheetAlert = loadImage("assets/batSheetAlert.png");
+  batSheetAlertLeft = loadImage("assets/batSheetAlertLeft.png");
 
   spiderSheet = loadImage("assets/spiderSheet.png");
+  spiderSheetLeft = loadImage("assets/spiderSheetLeft.png");
 }
 
 function setup() {
@@ -88,7 +97,7 @@ function setup() {
 }
 
 function loadRadius(centerX, centerY, radius) {
-  const startRow = Math.floor((0, centerY - radius / 3) / 50);
+  const startRow = Math.floor((0, centerY - 50) / 50);
   const endRow = Math.ceil((centerY + radius) / 50);
 
   let startCol, endCol;
@@ -143,7 +152,7 @@ function loadRadius(centerX, centerY, radius) {
   }
 
   if (player.vel.y > 0) {
-    // // Remove tiles above the radius when the player is moving downwards (y++)
+    // Remove tiles above the radius when the player is moving downwards (y++)
     // const removeStartRow = Math.max(1, Math.floor((centerY - radius) / 50));
     // const removeEndRow = Math.max(
     //   0,
@@ -156,7 +165,7 @@ function loadRadius(centerX, centerY, radius) {
     // }
 
     // Refactor the existing code to spawn enemies based on player.vel.y > 0
-    const spawnStartRow = Math.ceil((centerY + radius) / 50);
+    const spawnStartRow = Math.ceil((centerY + radius) / 50) - 1;
     const spawnEndRow = Math.floor((centerY + radius + player.vel.y) / 50);
 
     for (let i = spawnStartRow; i <= spawnEndRow; i++) {
@@ -211,7 +220,7 @@ function loadRadius(centerX, centerY, radius) {
     }
 
     // Define the desired radius for removing enemies
-    const removeRadius = 2000;
+    const removeRadius = 1000;
 
     // Remove enemies outside the load radius
     enemies = enemies.filter((enemy) => {
@@ -317,18 +326,27 @@ function keyPressed() {
           player.destroyTile(tiles);
           currentTile.hits = 0;
           currentTile.isDestroyed = true;
-
-          if (inventory.resources.length < inventory.capacity) {
-            if (currentTile instanceof gt0) {
-              inventory.addResources(new Grass());
-            } else if (currentTile instanceof ct) {
-              inventory.addResources(new Clay());
-            } else if (currentTile instanceof st) {
-              inventory.addResources(new Stone());
-            } else if (currentTile instanceof gt1) {
-              inventory.addResources(new Gold());
-            }
+          if (currentTile instanceof gt0) {
+            // player.score += 20;
+          } else if (currentTile instanceof ct) {
+            // player.score += 50;
+          } else if (currentTile instanceof st) {
+            player.score += 50;
+          } else if (currentTile instanceof gt1) {
+            player.score += 200;
           }
+
+          // if (inventory.resources.length < inventory.capacity) {
+          //   if (currentTile instanceof gt0) {
+          //     inventory.addResources(new Grass());
+          //   } else if (currentTile instanceof ct) {
+          //     inventory.addResources(new Clay());
+          //   } else if (currentTile instanceof st) {
+          //     inventory.addResources(new Stone());
+          //   } else if (currentTile instanceof gt1) {
+          //     inventory.addResources(new Gold());
+          //   }
+          // }
         }
       }
     }
@@ -346,59 +364,63 @@ function keyPressed() {
 }
 
 function draw() {
-  clear();
-  background("#11182F");
+  if (startScreen === false) {
+    clear();
+    background("#11182F");
 
-  if (player.pos.y >= 300) {
-    background(0, 0, 0, 150);
-  }
+    if (player.pos.y >= 300) {
+      background(0, 0, 0, 150);
+    }
 
-  push();
+    push();
 
-  translate(
-    canvasWidth / 2 - player.pos.x * zoomFactor,
-    canvasHeight / 2.5 - player.pos.y * zoomFactor
-  );
+    translate(
+      canvasWidth / 2 - player.pos.x * zoomFactor,
+      canvasHeight / 2.5 - player.pos.y * zoomFactor
+    );
 
-  scale(zoomFactor);
+    scale(zoomFactor);
 
-  for (const row of tiles) {
-    for (const tile of row) {
-      if (tile && !(tile instanceof Emptile)) {
-        for (const enemy of enemies) {
-          //  Update enemy / tile object relations.
+    for (const row of tiles) {
+      for (const tile of row) {
+        if (tile && !(tile instanceof Emptile)) {
+          for (const enemy of enemies) {
+            //  Update enemy / tile object relations.
 
-          if (enemy.hits(tile)) {
+            if (enemy.hits(tile)) {
+            }
           }
         }
       }
     }
-  }
 
-  // Update the player functions
+    // Update the player functions
 
-  player.animate();
-  player.move();
-  player.update();
+    player.animate();
+    player.scoreKeeper();
+    player.healthbar();
+    player.move();
+    player.update();
 
-  for (const enemy of enemies) {
-    enemy.animate();
-    enemy.move();
-    enemy.update();
-    enemy.alertedByPlayer(player);
-  }
+    for (const enemy of enemies) {
+      enemy.animate();
+      enemy.move();
+      enemy.update();
+      enemy.alertedByPlayer(player);
+    }
 
-  loadRadius(player.pos.x, player.pos.y, 400);
+    loadRadius(player.pos.x, player.pos.y, 500);
 
-  // Update the enemy functions
+    // Update the enemy functions
 
-  pop();
+    pop();
 
-  if (inventory.isOpen === false) {
-    inventory.Closed();
-  }
+    if (inventory.isOpen === false) {
+      inventory.Closed();
+    }
 
-  if (inventory.isOpen === true) {
-    inventory.Open();
+    if (inventory.isOpen === true) {
+      inventory.Open();
+    }
   }
 }

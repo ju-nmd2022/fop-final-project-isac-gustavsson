@@ -23,14 +23,16 @@ class Enemy extends Player {
 
     this.batSheet = batSheet;
     this.batSheetAlert = batSheetAlert;
+    this.batSheetAlertLeft = batSheetAlertLeft;
     this.spiderSheet = spiderSheet;
+    this.spiderSheetLeft = spiderSheetLeft;
 
     this.noiseValue = 0;
   }
 
   alertedByPlayer(player) {
     let distance = dist(this.pos.x, this.pos.y, player.pos.x, player.pos.y);
-    let threshold = 100;
+    let threshold = 150;
 
     // Check if the player is within the perimeter to alert enemy.
     if (distance < threshold) {
@@ -42,7 +44,13 @@ class Enemy extends Player {
     // check if player and enemy are colliding.
     if (distance < this.s / 2 + player.s / 2) {
       player.isCollidingWithEnemy = true;
+      player.health -= 4;
     } else player.isCollidingWithEnemy = false;
+
+    if (player.health <= 0) {
+      alert("you're dead.");
+      location.reload();
+    }
   }
 
   jump() {
@@ -107,7 +115,7 @@ class Enemy extends Player {
 
     // Calculate player and tile boundaries
 
-    const tileCenterX = tile.pos.x + tile.s / 2;
+    // const tileCenterX = tile.pos.x + tile.s / 2;
     const tileCenterY = tile.pos.y + tile.s / 2;
 
     // Check for collisions from different directions
@@ -247,11 +255,21 @@ class Bat extends Enemy {
         this.frameWidth,
         this.frameHeight
       );
-    }
-
-    if (this.isAlerted) {
+    } else if (this.isAlerted && player.pos.x > this.pos.x) {
       image(
         this.batSheetAlert,
+        -4,
+        0,
+        this.frameWidth / 5,
+        this.frameHeight / 5,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    } else if (this.isAlerted && player.pos.x < this.pos.x) {
+      image(
+        this.batSheetAlertLeft,
         -4,
         0,
         this.frameWidth / 5,
@@ -279,17 +297,43 @@ class Spider extends Enemy {
     push();
     translate(this.pos.x - this.s / 2, this.pos.y - this.s / 2 - 15);
 
-    image(
-      this.spiderSheet,
-      0,
-      22,
-      this.frameWidth / 8,
-      this.frameHeight / 8,
-      this.currentFrame * this.frameWidth,
-      0,
-      this.frameWidth,
-      this.frameHeight
-    );
+    if (!this.isAlerted) {
+      image(
+        this.spiderSheet,
+        0,
+        22,
+        this.frameWidth / 8,
+        this.frameHeight / 8,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    } else if (this.isAlerted && player.pos.x > this.pos.x) {
+      image(
+        this.spiderSheet,
+        0,
+        22,
+        this.frameWidth / 8,
+        this.frameHeight / 8,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    } else if (this.isAlerted && player.pos.x < this.pos.x) {
+      image(
+        this.spiderSheetLeft,
+        0,
+        22,
+        this.frameWidth / 8,
+        this.frameHeight / 8,
+        this.currentFrame * this.frameWidth,
+        0,
+        this.frameWidth,
+        this.frameHeight
+      );
+    }
 
     pop();
   }

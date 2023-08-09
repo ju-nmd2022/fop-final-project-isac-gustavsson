@@ -20,6 +20,9 @@ class Player {
     this.frameHeight = 100;
     this.currentFrame = 0;
 
+    this.health = 700;
+    this.score = 0;
+
     // booleans for player animation.
 
     this.isLookingLeft = false;
@@ -39,6 +42,33 @@ class Player {
     this.hitDownSprite = hitDownSprite;
     this.hitRightSprite = hitRightSprite;
     this.hitLeftSprite = hitLeftSprite;
+  }
+
+  scoreKeeper() {
+    if (this.score >= 4000) {
+      alert("you win.");
+      location.reload();
+    }
+
+    push();
+    translate(this.pos.x, this.pos.y - 175);
+    fill("#eb5e55");
+    textSize(14);
+    textFont("Bungee");
+    text("Score: " + this.score, -20, 0);
+
+    pop();
+  }
+
+  healthbar() {
+    push();
+
+    translate(this.pos.x, this.pos.y - 100);
+    noStroke();
+    fill(256, 0, 0);
+    rect(-this.s / 2, +this.s * 2.5, this.s * (this.health / 600), 3);
+
+    pop();
   }
 
   destroyTile(tiles) {
